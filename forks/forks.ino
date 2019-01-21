@@ -5,18 +5,18 @@ const HardwareSerial *DEBUG = 0; // &Serial to debug on USB, or zero to disable 
 
 const int INPUTS[] { 2, 3 }; // Input, one for each Forks channel
 const int INPUT_BUTTONS[] { 4, 5 }; // Manual input buttons
-const int OUTPUTS_A[] { 6, 8 }; // First outputs
-const int OUTPUTS_B[] { 7, 9 }; // Second outputs
+const int OUTPUTS_A[] { 8, 10 }; // First outputs
+const int OUTPUTS_B[] { 9, 11 }; // Second outputs
 
-const int PROBABILITY_KNOBS[] { A0, A2 }; // Probability knobs pins
-const int PROBABILITY_CV_INPUTS[] { A1, A3 }; // Probability CV inputs
+const int PROBABILITY_KNOBS[] { A1, A0 }; // Probability knobs pins
+const int PROBABILITY_CV_INPUTS[] { A7, A6 }; // Probability CV inputs
 
-const int MODE_TOGGLE_PINS[] { 10, 12 }; // Switch for enabling toggle mode
-const int MODE_LATCH_PINS[] { 11, 13 }; // Switch for enabling latch mode
+const int MODE_TOGGLE_PINS[] { 6, A2 }; // Switch for enabling toggle mode
+const int MODE_LATCH_PINS[] { 7, A3 }; // Switch for enabling latch mode
 const unsigned long MODE_POLL_EVERY_MS = 100; // Check for mode switches periodically
 
-const int LEDS_A[] { A4, A6 }; // LED indicators for first outputs
-const int LEDS_B[] { A5, A7 }; // LED indicators for second outputs
+const int LEDS_A[] { A4, 12 }; // LED indicators for first outputs
+const int LEDS_B[] { A5, 13 }; // LED indicators for second outputs
 
 const int PROBABILITY_KNOBS_THRESHOLD_LOW = 10; // Everything read under this value in the 0-1023 scale is considered the minimum value
 const int PROBABILITY_KNOBS_THRESHOLD_HIGH = 1024 - 5; // Everything read over this value in the 0-1023 scale is considered the maximum value
