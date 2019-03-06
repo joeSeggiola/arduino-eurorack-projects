@@ -16,6 +16,7 @@ class Button {
 			this->debounceDelayMs = debounceDelayMs;
 			
 			this->lastPressedMs = 0;
+			this->longPressStartMs = 0;
 			
 			pinMode(this->pin, INPUT);
 			
@@ -31,8 +32,9 @@ class Button {
 			
 			if (reading) {
 				
-				// Pressed: remember time and return TRUE
-				this->lastPressedMs = millis();
+				// Pressed: return TRUE
+				this->lastPressedMs = millis(); // Remember time for debouncing
+				if (this->longPressStartMs == 0) this->longPressStartMs = millis(); // Start long press detection
 				return true;
 				
 			} else {
@@ -41,15 +43,30 @@ class Button {
 				if (this->lastPressedMs > 0) {
 					if (millis() - this->lastPressedMs >= debounceDelayMs) {
 						this->lastPressedMs = 0; // Reset remembered time
-						return false;
+						this->longPressStartMs = 0; // Stop long press detection
 					} else {
 						return true; // Waiting for debouncing...
 					}
-				} else {
-					return false;
 				}
 				
 			}
+			
+			return false;
+			
+		}
+		
+		/** 
+		 * Detect button long press, TRUE if the pin was HIGH for longer than given diration.
+		 */
+		bool readLongPress(unsigned long durationMs) {
+			
+			if (this->read()) {
+				if (millis() - this->longPressStartMs >= durationMs) {
+					return true;
+				}
+			}
+			
+			return false;
 			
 		}
 		
@@ -57,6 +74,7 @@ class Button {
 		int pin;
 		unsigned long debounceDelayMs;
 		unsigned long lastPressedMs;
+		unsigned long longPressStartMs;
 		
 };
 
