@@ -1,7 +1,7 @@
 Forks
 =====
 
-Arduino-powered clone of Mutable Instrument's [Branches][1], with a 3D-printed faceplate.
+A DIY Arduino-powered clone of Mutable Instrument's [Branches][1], with a 3D-printed faceplate.
 
 **[Arduino code](forks.ino)** | **[3D model](plate.stl)** | **[Plate design](plate.svg)**
 
