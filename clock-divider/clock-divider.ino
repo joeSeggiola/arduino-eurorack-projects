@@ -35,7 +35,7 @@ volatile bool clock = false; // Clock signal digital reading, set in the clock I
 volatile bool clockFlag = false; // Clock signal change flag, set in the clock ISR
 volatile bool resetFlag = false; // Reset flag, set in the reset ISR
 
-const MODE_EEPROM_ADDRESS = 0;
+const int MODE_EEPROM_ADDRESS = 0;
 
 void setup() {
 	
@@ -87,7 +87,7 @@ void loop() {
 		}
 		
 		// Input LED
-		clockLed->set(clock || gateMode);  // TODO: Rimuovere l'OR, è un test per verificare l'attivazione del gate mode
+		clockLed->set(clock);
 		
 		if (clock) {
 			
@@ -170,9 +170,9 @@ void processGateMode() {
 		
 		// Go LOW on rising edges for even divisions and falling edges for odd divisions,
 		// considering the edges that corresponds to the half value of the division
-		if (modulo == (int)(ceil(DIVISIONS[i] / 2.0))) {
+		if (modulo == (int)(floor(DIVISIONS[i] / 2.0))) {
 			bool divisionIsOdd = (DIVISIONS[i] % 2 != 0);
-			if (clock && !divisionIsOdd) || (!clock && divisionIsOdd)) {
+			if ((clock && !divisionIsOdd) || (!clock && divisionIsOdd)) {
 				digitalWrite(DIVISIONS_OUTPUT[i], LOW);
 				leds[i]->off();
 			}
