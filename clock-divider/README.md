@@ -20,3 +20,8 @@ Circuit
 The following is just a hint for a possible circuit implementation.
 
 ![](schematic.png)
+
+Pictures
+--------
+
+<img src="pictures/IMG_20190107_215258.jpg" width="420"> <img src="pictures/IMG_20190112_155043.jpg" width="420"> <img src="pictures/IMG_20190112_163027.jpg" width="420"> <img src="pictures/IMG_20190112_224337.jpg" width="420"> <img src="pictures/IMG_20190306_214855.jpg" width="420"> <img src="pictures/IMG_20190307_225219.jpg" width="420">
