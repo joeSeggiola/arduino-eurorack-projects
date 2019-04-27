@@ -25,4 +25,9 @@ The following is a hint for a possible circuit implementation. Only one Bernoull
 
 ![](schematic.png)
 
+Pictures
+--------
+
+<img src="pictures/IMG_20190120_210330.jpg" width="420"> <img src="pictures/IMG_20190427_112937.jpg" width="420"> <img src="pictures/IMG_20190426_182714.jpg" width="420"> <img src="pictures/IMG_20190427_113603.jpg" width="420">
+
 [1]: https://mutable-instruments.net/modules/branches/
