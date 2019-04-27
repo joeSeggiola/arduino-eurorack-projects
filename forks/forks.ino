@@ -18,10 +18,10 @@ const unsigned long MODE_POLL_EVERY_MS = 100; // Check for mode switches periodi
 const int LEDS_A[] { A4, 12 }; // LED indicators for first outputs
 const int LEDS_B[] { A5, 13 }; // LED indicators for second outputs
 
-const int PROBABILITY_KNOBS_THRESHOLD_LOW = 10; // Everything read under this value in the 0-1023 scale is considered the minimum value
-const int PROBABILITY_KNOBS_THRESHOLD_HIGH = 1024 - 5; // Everything read over this value in the 0-1023 scale is considered the maximum value
-const int PROBABILITY_CV_INPUTS_THRESHOLD_LOW = 10; // Everything read under this value in the 0-1023 scale is considered the minimum value
-const int PROBABILITY_CV_INPUTS_THRESHOLD_HIGH = 1024 - 5; // Everything read over this value in the 0-1023 scale is considered the maximum value
+const int PROBABILITY_KNOBS_THRESHOLD_LOW = 15; // Everything read under this value in the 0-1023 scale is considered the minimum value
+const int PROBABILITY_KNOBS_THRESHOLD_HIGH = 1024 - 30; // Everything read over this value in the 0-1023 scale is considered the maximum value
+const int PROBABILITY_CV_INPUTS_THRESHOLD_LOW = 5; // Everything read under this value in the 0-1023 scale is considered the minimum value
+const int PROBABILITY_CV_INPUTS_THRESHOLD_HIGH = 1024 - 90; // Everything read over this value in the 0-1023 scale is considered the maximum value
 
 const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for manual input buttons
 const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all LEDs visibility
