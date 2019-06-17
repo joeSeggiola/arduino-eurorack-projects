@@ -10,13 +10,14 @@ class Led {
 		/** 
 		 * Setup the LED, specifying and optional minimum "on" duration for user visibility
 		 */
-		Led(int pin, unsigned long minDurationMs = 0) {
+		void init(byte pin, unsigned int minDurationMs = 0) {
 			
 			this->pin = pin;
 			this->minDurationMs = minDurationMs;
 			
 			this->state = false;
 			this->stateHardware = false;
+			this->blinkMs = 0;
 			this->lastOnMs = 0;
 			
 			pinMode(this->pin, OUTPUT);
@@ -31,6 +32,7 @@ class Led {
 		 */
 		void set(bool state) {
 			
+			this->blinkMs = 0; // Stop blinking
 			this->state = state;
 			
 			if (state) {
@@ -54,17 +56,39 @@ class Led {
 		}
 		
 		/**
-		 * Turn the LED off if necessary.
-		 * Call this in the main loop if a minimum duration was set.
+		 * Starts blinking with given period, until any other method is called.
+		 * Use duty to specify how long the LED will be on.
+		 * This method can also be used make it fade, using a short period and duty to adjust brightness.
+		 * Make sure to call loop() to keep the LED blinking.
+		 */
+		void blink(unsigned int periodMs, float duty = 0.5) {
+			this->blinkMs = periodMs;
+			this->blinkDuty = max(0, min(1, duty));
+			this->blinkStartedMs = millis();
+		}
+		
+		/**
+		 * Turn the LED off if necessary, or keep it blinking.
+		 * Call this in the main loop.
 		 */
 		void loop() {
 			
-			// Turn the LED off if necessary
-			if (!this->state && this->stateHardware) {
-				if (millis() - this->lastOnMs >= this->minDurationMs) {
-					this->stateHardware = false;
-					digitalWrite(this->pin, LOW);
+			if (this->blinkMs > 0) {
+				
+				unsigned long t = ((millis() - this->blinkStartedMs) % this->blinkMs);
+				this->stateHardware = t < (this->blinkMs * this->blinkDuty);
+				digitalWrite(this->pin, this->stateHardware);
+				
+			} else {
+				
+				// Turn the LED off if necessary
+				if (!this->state && this->stateHardware) {
+					if (millis() - this->lastOnMs >= this->minDurationMs) {
+						this->stateHardware = false;
+						digitalWrite(this->pin, LOW);
+					}
 				}
+				
 			}
 			
 		}
@@ -81,12 +105,24 @@ class Led {
 			this->set(!state);
 		}
 		
+		/**
+		 * Turn on the LED, then turn it off immediately.
+		 * A single impulse of light will be visible if LED's minDurationMs is long enough.
+		 */
+		void flash() {
+			this->set(true);
+			this->set(false);
+		}
+		
 	private:
-		int pin;
+		byte pin;
+		unsigned int minDurationMs;
 		bool state;
 		bool stateHardware;
+		unsigned int blinkMs;
+		unsigned long blinkStartedMs;
+		float blinkDuty;
 		unsigned long lastOnMs;
-		unsigned long minDurationMs;
 		
 };
 

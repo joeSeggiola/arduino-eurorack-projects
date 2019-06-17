@@ -1,9 +1,9 @@
 	
 // CONFIGURATION =============================================================
 
-const HardwareSerial *DEBUG = 0; // &Serial to debug on USB, or zero to disable debugging
+const bool DEBUG = false; // FALSE to disable debug messages on serial port
 
-const int INPUTS[] { 2, 3 }; // Input, one for each Forks channel
+const int INPUTS[] { 2, 3 }; // Input, one for each Forks channel (max 8 channels)
 const int INPUT_BUTTONS[] { 4, 5 }; // Manual input buttons
 const int OUTPUTS_A[] { 8, 10 }; // First outputs
 const int OUTPUTS_B[] { 9, 11 }; // Second outputs
@@ -34,34 +34,29 @@ const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all L
 
 unsigned int n = 0; // Number of channels
 
-Button** buttons;
-Knob** knobs;
-Knob** cvs;
-Led** ledsA; // LEDs for outputs A
-Led** ledsB; // LEDs for outputs B
+Button buttons[8];
+Knob knobs[8];
+Knob cvs[8];
+Led ledsA[8]; // LEDs for outputs A
+Led ledsB[8]; // LEDs for outputs B
 
-volatile bool* inputs; // Input signal digital reading, set in ISR
-bool* inputsLast; // TRUE if input signal was high or manual button was pressed
-bool* outcomeLast = false; // Last outcome for toggle mode
+volatile bool inputs[8]; // Input signal digital reading, set in ISR
+bool inputsLast[8]; // TRUE if input signal was high or manual button was pressed
+bool outcomeLast[8]; // Last outcome for toggle mode
 
-bool* modeToggle; // TRUE if toggle mode is enabled for the channel
-bool* modeLatch; // TRUE if latch mode is enabled for the channel
+bool modeToggle[8]; // TRUE if toggle mode is enabled for the channel
+bool modeLatch[8]; // TRUE if latch mode is enabled for the channel
 unsigned long lastModePollMs = 0; // Modes switches are polled periodically
 
 void setup() {
 	
 	// Debugging
-	if (DEBUG) DEBUG->begin(9600);
+	if (DEBUG) Serial.begin(9600);
 	
 	// Number of divisions
 	n = sizeof(INPUTS) / sizeof(INPUTS[0]);
 	
 	// Initialize state
-	inputs = new bool[n];
-	inputsLast = new bool[n];
-	outcomeLast = new bool[n];
-	modeToggle = new bool[n];
-	modeLatch = new bool[n];
 	for (int i = 0; i < n; i++) {
 		inputs[i] = false;
 		inputsLast[i] = false;
@@ -71,17 +66,12 @@ void setup() {
 	}
 	
 	// Setup I/O
-	buttons = new Button*[n];
-	knobs = new Knob*[n];
-	cvs = new Knob*[n];
-	ledsA = new Led*[n];
-	ledsB = new Led*[n];
 	for (int i = 0; i < n; i++) {
-		buttons[i] = new Button(INPUT_BUTTONS[i], BUTTON_DEBOUNCE_DELAY);
-		knobs[i] = new Knob(PROBABILITY_KNOBS[i], PROBABILITY_KNOBS_THRESHOLD_LOW, PROBABILITY_KNOBS_THRESHOLD_HIGH);
-		cvs[i] = new Knob(PROBABILITY_CV_INPUTS[i], PROBABILITY_CV_INPUTS_THRESHOLD_LOW, PROBABILITY_CV_INPUTS_THRESHOLD_HIGH);
-		ledsA[i] = new Led(LEDS_A[i], LED_MIN_DURATION_MS);
-		ledsB[i] = new Led(LEDS_B[i], LED_MIN_DURATION_MS);
+		buttons[i].init(INPUT_BUTTONS[i], BUTTON_DEBOUNCE_DELAY);
+		knobs[i].init(PROBABILITY_KNOBS[i], PROBABILITY_KNOBS_THRESHOLD_LOW, PROBABILITY_KNOBS_THRESHOLD_HIGH);
+		cvs[i].init(PROBABILITY_CV_INPUTS[i], PROBABILITY_CV_INPUTS_THRESHOLD_LOW, PROBABILITY_CV_INPUTS_THRESHOLD_HIGH);
+		ledsA[i].init(LEDS_A[i], LED_MIN_DURATION_MS);
+		ledsB[i].init(LEDS_B[i], LED_MIN_DURATION_MS);
 		pinMode(OUTPUTS_A[i], OUTPUT);
 		pinMode(OUTPUTS_B[i], OUTPUT);
 		digitalWrite(OUTPUTS_A[i], LOW);
@@ -106,7 +96,7 @@ void loop() {
 	for (int i = 0; i < n; i++) {
 		
 		// Channel input changed?
-		bool input = inputs[i] || buttons[i]->read(); // Current input
+		bool input = inputs[i] || buttons[i].read(); // Current input
 		if (input != inputsLast[i]) {
 			inputsLast[i] = input; // Remeber the new input
 			
@@ -114,7 +104,7 @@ void loop() {
 				
 				// Flip coin
 				randomSeed(micros()); // No unconnected analog pins available, seed with millis()
-				float probability = min(knobs[i]->read() + cvs[i]->read(), 1.0);
+				float probability = min(knobs[i].read() + cvs[i].read(), 1.0);
 				bool outcome = random(0, 1024) >= (probability * 1024); // TRUE if random is bigger than probability factor
 				
 				// Toggle mode?
@@ -124,30 +114,30 @@ void loop() {
 				// Turn on output and LED
 				if (outcome) {
 					digitalWrite(OUTPUTS_A[i], HIGH);
-					ledsA[i]->on();
+					ledsA[i].on();
 				} else {
 					digitalWrite(OUTPUTS_B[i], HIGH);
-					ledsB[i]->on();
+					ledsB[i].on();
 				}
 				
 				// If in latch mode, turn off the other output and LED
 				if (modeLatch[i]) {
 					if (outcome) {
 						digitalWrite(OUTPUTS_B[i], LOW);
-						ledsB[i]->off();
+						ledsB[i].off();
 					} else {
 						digitalWrite(OUTPUTS_A[i], LOW);
-						ledsA[i]->off();
+						ledsA[i].off();
 					}
 				}
 				
 				if (DEBUG) {
-					DEBUG->print("CH");
-					DEBUG->print(i);
-					DEBUG->print(" -> Gate on -> P: ");
-					DEBUG->print(probability, 2);
-					DEBUG->print(" -> Outcome: ");
-					DEBUG->println(outcome ? 'A' : 'B');
+					Serial.print("CH");
+					Serial.print(i);
+					Serial.print(" -> Gate on -> P: ");
+					Serial.print(probability, 2);
+					Serial.print(" -> Outcome: ");
+					Serial.println(outcome ? 'A' : 'B');
 				}
 				
 			} else {
@@ -156,14 +146,14 @@ void loop() {
 				if (!modeLatch[i]) {
 					digitalWrite(OUTPUTS_A[i], LOW);
 					digitalWrite(OUTPUTS_B[i], LOW);
-					ledsA[i]->off();
-					ledsB[i]->off();
+					ledsA[i].off();
+					ledsB[i].off();
 				}
 				
 				if (DEBUG) {
-					DEBUG->print("CH");
-					DEBUG->print(i);
-					DEBUG->println(" -> Gate off");
+					Serial.print("CH");
+					Serial.print(i);
+					Serial.println(" -> Gate off");
 				}
 				
 			}
@@ -171,8 +161,8 @@ void loop() {
 		}
 		
 		// Update LEDs
-		ledsA[i]->loop();
-		ledsB[i]->loop();
+		ledsA[i].loop();
+		ledsB[i].loop();
 		
 	}
 	
