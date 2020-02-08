@@ -1,16 +1,15 @@
 Forks
 =====
 
-A DIY Arduino-powered clone of Mutable Instruments [Branches][6], with a 3D-printed faceplate.
+A DIY Arduino-powered clone of Mutable Instruments [Branches][5], with a 3D-printed faceplate.
 
-**[Arduino code][1]** | **[3D model][2]** | **[Plate design][3]** | **[Muff Wiggler][4]** | **[Reddit][5]**
+**[Arduino code][1]** | **[3D model][2]** | **[Plate design][3]** | **[Muff Wiggler][4]**
 
 [1]: forks.ino
 [2]: plate.stl
 [3]: plate.svg
 [4]: https://www.muffwiggler.com/forum/viewtopic.php?t=216665
-[5]: https://www.reddit.com/r/synthdiy/comments/bi128q/forks_a_3dprinted_arduinopowered_clone_of_mutable/
-[6]: https://mutable-instruments.net/modules/branches/
+[5]: https://mutable-instruments.net/modules/branches/
 
 Features and limitations
 ------------------------
