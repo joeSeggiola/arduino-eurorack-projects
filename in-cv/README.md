@@ -3,11 +3,12 @@ In CV
 
 A DIY Arduino-powered virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
 
-**[Arduino code][1]** | **[3D model][2]** | **[YouTube demo][3]**
+**[Arduino code][1]** | **[3D model][2]** | **[YouTube demo][3]** | **[Muff Wiggler][4]**
 
 [1]: in-cv.ino
 [2]: plate.stl
 [3]: https://youtu.be/ea2zLXFY1C4
+[4]: https://www.muffwiggler.com/forum/viewtopic.php?f=17&t=227451
 
 Features
 --------
