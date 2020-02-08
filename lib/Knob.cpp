@@ -10,7 +10,7 @@ class Knob {
 		/** 
 		 * Setup the knob or CV input, specifying and optional thresholds
 		 */
-		void init(int pin, unsigned long thresholdLow = 0, unsigned long thresholdHigh = 1023) {
+		void init(byte pin, int thresholdLow = 0, int thresholdHigh = 1023) {
 			
 			this->pin = pin;
 			this->thresholdLow = thresholdLow;
@@ -44,7 +44,7 @@ class Knob {
 		}
 		
 	private:
-		int pin;
+		byte pin;
 		int thresholdLow;
 		int thresholdHigh;
 		

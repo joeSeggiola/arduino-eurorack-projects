@@ -1,0 +1,25 @@
+{
+    "env": {
+        "es6": true,
+        "commonjs": true,
+        "node": true,
+        "jest": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:jest/recommended"
+    ],
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "plugins": [
+        "jest"
+    ],
+    "rules": {
+        "semi": [ "error", "always" ],
+        "no-console": "off",
+        "no-unused-vars": [ "warn" ],
+        "no-empty": [ "error", { "allowEmptyCatch": true } ],
+        "radix": "error"
+    }
+}

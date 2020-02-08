@@ -10,10 +10,11 @@ class Button {
 		/** 
 		 * Setup the button, specifying and optional debounce delay
 		 */
-		void init(int pin, unsigned int debounceDelayMs = 0) {
+		void init(byte pin, unsigned int debounceDelayMs = 0, bool invert = false, bool internalPullup = false) {
 			
 			this->pin = pin;
 			this->debounceDelayMs = debounceDelayMs;
+			this->invert = invert;
 			
 			this->lastPressedMs = 0;
 			this->longPressStartMs = 0;
@@ -23,7 +24,7 @@ class Button {
 			this->readLongPressOnceFlag = false;
 			this->readShortOrLongPressOnceFlag = false;
 			
-			pinMode(this->pin, INPUT);
+			pinMode(this->pin, internalPullup ? INPUT_PULLUP : INPUT);
 			
 		}
 		
@@ -34,6 +35,7 @@ class Button {
 		bool read() {
 			
 			bool reading = digitalRead(this->pin);
+			if (this->invert) reading = !reading;
 			
 			if (reading) {
 				
@@ -136,6 +138,7 @@ class Button {
 	private:
 		byte pin;
 		unsigned int debounceDelayMs;
+		bool invert;
 		unsigned long lastPressedMs;
 		unsigned long longPressStartMs;
 		unsigned long shortOrLongPressStartMs;

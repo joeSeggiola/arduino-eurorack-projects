@@ -1,0 +1,20 @@
+{
+  "name": "in-cv-patterns",
+  "version": "1.0.0",
+  "description": "Generates patterns header file for In-CV Eurorack module",
+  "scripts": {
+    "start": "node cli.js",
+    "test": "jest"
+  },
+  "author": "joeSeggiola <joeseggiola@gmail.com>",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-plugin-jest": "^22.5.1",
+    "jest": "^24.8.0"
+  },
+  "dependencies": {
+    "mathjs": "^5.10.3"
+  }
+}
