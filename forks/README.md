@@ -18,7 +18,7 @@ Features and limitations
 - Both Latch and Toggle modes are enabled with two independent dedicated switches.
 - Manual input button, it can be used as a manual trigger/gate generator.
 
-Compared to [Branches][6], it has some drawbacks due to Arduino usage with minimal circuitry around:
+Compared to [Branches][5], it has some drawbacks due to Arduino usage with minimal circuitry around:
 
 - Probability CV input range is unipolar: a negative input will be treated as 0%, and an input higher than 5V as 100%.
 - Probability CV input is simply summed to the value of the knob: with the knob fully counter-clockwise the probability is given by the CV input only, turning the knob clockwise will "push" the probability toward 100%, up to fully clockwise where the CV input doesn't matter any more.
