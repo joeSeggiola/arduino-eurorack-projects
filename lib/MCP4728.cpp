@@ -30,7 +30,7 @@ class MCP4728 {
 		enum class PWR_DOWN { NORMAL, GND_1KOHM, GND_100KOHM, GND_500KOHM };
 		enum class GAIN { X1, X2 };
 
-		void init(TwoWire& w, uint8_t addr = 0, uint8_t pin = -1) {
+		void init(TwoWire& w, uint8_t addr = 0, int8_t pin = -1) {
 			wire_ = &w;
 			addr_ = I2C_ADDR + addr;
 			pin_ldac_ = pin;
@@ -219,7 +219,7 @@ class MCP4728 {
 		const uint8_t I2C_ADDR {0x60};
 
 		uint8_t addr_ {I2C_ADDR};
-		uint8_t pin_ldac_;
+		int8_t pin_ldac_;
 
 		DACInputData reg_[4];
 		DACInputData eep_[4];
