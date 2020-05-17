@@ -3,10 +3,12 @@ MIDI 4+1
 
 A DIY Arduino-powered MIDI to 4x CV/gate interface in 6HP, with both polyphonic and monophonic voice allocation modes.
 
-**[Arduino code][1]** | **[3D model][2]**
+**[Arduino code][1]** | **[3D model][2]** | **[Muff Wiggler][3]** | **[Lines][4]**
 
 [1]: midi4plus1.ino
 [2]: plate.stl
+[3]: https://www.muffwiggler.com/forum/viewtopic.php?f=17&t=231861
+[4]: https://llllllll.co/t/midi-4-1-arduino-powered-polyphonic-and-monophonic-midi-to-4x-cv-gate-interface-in-6hp/32543
 
 Features and limitations
 ------------------------
