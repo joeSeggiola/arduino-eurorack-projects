@@ -11,6 +11,7 @@ Each module has its own detailed README file.
 - [Clock divider](clock-divider/): clock divider in 4HP.
 - [Forks](forks/): two Bernoulli gates, clone of Mutable Instruments Branches.
 - [In CV](in-cv/): virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
+- [MIDI 4+1](midi4plus1/): polyphonic and monophonic MIDI to 4x CV/gate interface in 6HP.
 
 Libraries and tools
 -------------------

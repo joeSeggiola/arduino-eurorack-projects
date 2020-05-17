@@ -57,14 +57,14 @@ class Led {
 		
 		/**
 		 * Starts blinking with given period, until any other method is called.
-		 * Use duty to specify how long the LED will be on.
+		 * Use duty to specify how long the LED will be on, and invert to flip the blinking phase.
 		 * This method can also be used make it fade, using a short period and duty to adjust brightness.
 		 * Make sure to call loop() to keep the LED blinking.
 		 */
-		void blink(unsigned int periodMs, float duty = 0.5) {
+		void blink(unsigned int periodMs, float duty = 0.5, bool invert = false) {
 			this->blinkMs = periodMs;
 			this->blinkDuty = max(0, min(1, duty));
-			this->blinkStartedMs = millis();
+			this->blinkStartedMs = millis() - (invert ? duty * periodMs : 0);
 		}
 		
 		/**
