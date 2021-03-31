@@ -52,7 +52,7 @@ const float LED_BLINK_DUTY = 0.1; // Blink duty cycle, to adjust overall brightn
 
 // Patterns with more steps than the max sequence size will be loaded in chunks while playing!
 // Use this to adjust memory usage at expense of runtime complexity.
-#define SEQUENCE_SIZE_MAX 64
+#define SEQUENCE_SIZE_MAX 32
 
 // DACs and shift register, for all performers
 MCP4728 dac1;
@@ -145,27 +145,27 @@ void setup() {
 	// Init I2C communication and DACs
 	Wire.begin();
 	Wire.setClock(400000); // Fast mode
-	dac1.init(Wire, 2);
+	dac1.init(Wire, 0);
 	dac1.selectVref(MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V);
 	dac1.selectPowerDown(MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL);
 	dac1.selectGain(MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2);
 	if (n > 4) {
-		dac2.init(Wire, 3);
+		dac2.init(Wire, 1);
 		dac2.selectVref(MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V, MCP4728::VREF::INTERNAL_2_8V);
 		dac2.selectPowerDown(MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL);
 		dac2.selectGain(MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2);
 	}
 	
 	// DACs calibration
-	dac1.calibrate(0, -12, 0.995024876);
-	dac1.calibrate(1,  -5, 0.998502247);
-	dac1.calibrate(2,  -2, 0.988630746);
-	dac1.calibrate(3,  -6, 0.995024876);
+	dac1.calibrate(0, 0, 400, 1000, 2000, 3000, 4000);
+	dac1.calibrate(1, 0, 400, 1000, 2000, 3000, 4000);
+	dac1.calibrate(2, 0, 400, 1000, 2000, 3000, 4000);
+	dac1.calibrate(3, 0, 400, 1000, 2000, 3000, 4000);
 	if (n > 4) {
-		dac2.calibrate(0, -14, 0.998003992);
-		dac2.calibrate(1,  -5, 0.989609104);
-		dac2.calibrate(2,  -2, 0.986923267);
-		dac2.calibrate(3,  -2, 0.993295257);
+		dac2.calibrate(0, 0, 400, 1000, 2000, 3000, 4000);
+		dac2.calibrate(1, 0, 400, 1000, 2000, 3000, 4000);
+		dac2.calibrate(2, 0, 400, 1000, 2000, 3000, 4000);
+		dac2.calibrate(3, 0, 400, 1000, 2000, 3000, 4000);
 	}
 	
 	// Init clock

@@ -34,10 +34,10 @@ class MCP4728 {
 			wire_ = &w;
 			addr_ = I2C_ADDR + addr;
 			pin_ldac_ = pin;
-			cal_[0] = false;
-			cal_[1] = false;
-			cal_[2] = false;
-			cal_[3] = false;
+			calibrate(0, 0, 1.0);
+			calibrate(1, 0, 1.0);
+			calibrate(2, 0, 1.0);
+			calibrate(3, 0, 1.0);
 			if (pin_ldac_ > -1) {
 				pinMode(pin_ldac_, OUTPUT);
 				enable(false);
@@ -45,10 +45,25 @@ class MCP4728 {
 			readRegisters();
 		}
 		
+		// Multi-point calibration method: send nominal values and pass actual measured mV values
+		void calibrate(uint8_t ch, int16_t m0, int16_t m400, int16_t m1000, int16_t m2000, int16_t m3000, int16_t m4000) {
+			uint8_t N = 6;
+			uint16_t points[N] = { 0, 400, 1000, 2000, 3000, 4000 }; // Nominal values
+			uint16_t values[N] = { m0, m400, m1000, m2000, m3000, m4000 }; // Actual measured values
+			for (uint8_t i = 1; i < N; i++) {
+			    float x1 = points[i - 1], x2 = points[i];
+			    float y1 = values[i - 1], y2 = values[i];
+				if (i < N - 1) cal_r_[ch][i - 1] = values[i]; // Range definition
+				cal_m_[ch][i - 1] = (x1 - x2) / (y1 - y2); // Inverse of segment slope
+    			cal_q_[ch][i - 1] = ((x1 * y2 - x2 * y1) / (x1 - x2)) + 0.5; // Segment intercept (0.5 is for rounding)
+			}
+		}
+		
+		// Compatibility (old) calibration method: single full linear range
 		void calibrate(uint8_t ch, int16_t offset, float gain) {
-			cal_offset_[ch] = offset;
-			cal_gain_[ch] = gain;
-			cal_[ch] = true;
+			cal_r_[ch][0] = 0xFFFF;
+			cal_m_[ch][0] = gain;
+			cal_q_[ch][0] = -offset;
 		}
 
 		void enable(bool b) {
@@ -162,12 +177,14 @@ class MCP4728 {
 	private:
 		
 		uint16_t getCalibratedData(uint8_t ch, uint16_t data) {
-			if (cal_[ch]) {
-				int16_t v = (int16_t)(data + cal_offset_[ch]) * cal_gain_[ch];
-				return v < 0 ? 0 : (v > 0xFFF ? 0xFFF : v);
-			} else {
-				return data;
+			int16_t v = 0;
+			for (uint8_t i = 0; i < 5; i++) {
+				if (i == 4 || data < cal_r_[ch][i]) { // Default is last segment (no range)
+					v = (data - cal_q_[ch][i]) * cal_m_[ch][i];
+					break;
+				}
 			}
+			return v < 0 ? 0 : (v > 0xFFF ? 0xFFF : v);
 		}
 
 		uint8_t fastWrite() {
@@ -226,9 +243,9 @@ class MCP4728 {
 		DACInputData read_reg_[4];
 		DACInputData read_eep_[4];
 		
-		bool cal_[4];
-		int16_t cal_offset_[4];
-		float cal_gain_[4];
+		int16_t cal_r_[4][4]; // Ranges definition
+		float cal_m_[4][5]; // Inverse of segments slope
+		int16_t cal_q_[4][5]; // Segments intercept
 
 		TwoWire* wire_;
 	
