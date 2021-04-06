@@ -51,11 +51,11 @@ class MCP4728 {
 			uint16_t points[N] = { 0, 400, 1000, 2000, 3000, 4000 }; // Nominal values
 			uint16_t values[N] = { m0, m400, m1000, m2000, m3000, m4000 }; // Actual measured values
 			for (uint8_t i = 1; i < N; i++) {
-			    float x1 = points[i - 1], x2 = points[i];
-			    float y1 = values[i - 1], y2 = values[i];
+				float x1 = points[i - 1], x2 = points[i];
+				float y1 = values[i - 1], y2 = values[i];
 				if (i < N - 1) cal_r_[ch][i - 1] = values[i]; // Range definition
 				cal_m_[ch][i - 1] = (x1 - x2) / (y1 - y2); // Inverse of segment slope
-    			cal_q_[ch][i - 1] = ((x1 * y2 - x2 * y1) / (x1 - x2)) + 0.5; // Segment intercept (0.5 is for rounding)
+ 				cal_q_[ch][i - 1] = ((x1 * y2 - x2 * y1) / (x1 - x2)) + 0.5; // Segment intercept (0.5 is for rounding)
 			}
 		}
 		
