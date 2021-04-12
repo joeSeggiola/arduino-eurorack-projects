@@ -29,4 +29,4 @@ There's a symbolic link to the `lib/` folder in every module folder. If the link
 License
 -------
 
-Code: [GPL 3.0](LICENSE), everything else: free domain.
+Code: [GPL 3.0](LICENSE), hardware: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
