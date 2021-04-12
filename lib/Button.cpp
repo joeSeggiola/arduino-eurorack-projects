@@ -107,7 +107,7 @@ class Button {
 		/*
 		 * A combined readOnce() and readLongPressOnce() for a multi-purpose button.
 		 * Returns 1 when the button is released before specified duration (short press).
-		 * Returns 2 as soon is the button has been pressed for specified duration.
+		 * Returns 2 as soon as the button has been pressed for specified duration.
 		 * Returns 0 in subsequent calls, while idle or while being pressed.
 		 */
 		byte readShortOrLongPressOnce(unsigned long longPressDurationMs) {

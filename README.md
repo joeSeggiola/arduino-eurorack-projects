@@ -24,7 +24,7 @@ Libraries and tools
 
 ### Note about the library folder
 
-There's a symbolic link of the `lib/` folder in every module folder. If the link doesn't work for you, you won't be able to compile: try to manually copy and paste the entire `lib/` folder from the root next to the sketch you are trying to compile. Unfortunately the Arduino compiler does not allow including source files from parent folders.
+There's a symbolic link to the `lib/` folder in every module folder. If the link doesn't work for you, you won't be able to compile: try to manually copy and paste the entire `lib/` folder from the root next to the sketch you are trying to compile. Unfortunately the Arduino compiler does not allow including source files from parent folders.
 
 License
 -------
