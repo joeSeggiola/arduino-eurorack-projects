@@ -3,12 +3,13 @@ In CV
 
 A DIY Arduino-powered virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
 
-**[Arduino code][1]** | **[3D model][2]** | **[YouTube demo][3]** | **[Muff Wiggler][4]**
+**[Arduino code][1]** | **[YouTube demo][3]** | **[Muff Wiggler][4]** | [🛒 **Buy on Reverb**][5] | [🛒 **Buy on Tindie**][6]
 
 [1]: in-cv.ino
-[2]: plate.stl
 [3]: https://youtu.be/ea2zLXFY1C4
 [4]: https://www.muffwiggler.com/forum/viewtopic.php?f=17&t=227451
+[5]: https://reverb.com/item/39927694-in-cv-terry-riley-s-in-c-implementation-for-eurorack
+[6]: https://www.tindie.com/products/23307/
 
 Features
 --------
@@ -32,7 +33,7 @@ Patterns data generation
 
 Arduino code reads the definitions of the 53 patterns of "In C" from [`patterns/patterns.h`][20]. This file is not hand-written, but automatically generated using [`patterns/cli.js`][21], a Node.js command line script. This script translates music notation contained in [`patterns/patterns.txt`][22] into performant and memory-efficient data.
 
-That said, you can write your own patterns and sequences to make the module play just about everything. Edit the TXT file (one sequence per line), install [Node.js][23] and then run this in the `patterns/` folder:
+That said, you can write your own patterns and sequences to make the module play just about anything. Edit the TXT file (one sequence per line), install [Node.js][23] and then run this in the `patterns/` folder:
 
 	npm install
 	npm start -- patterns.txt
@@ -44,6 +45,14 @@ That said, you can write your own patterns and sequences to make the module play
 
 Pictures
 --------
+
+### New PCB build
+
+[🛒 **Buy on Reverb**][5] | [🛒 **Buy on Tindie**][6]
+
+<img src="pictures/IMG_20210323_125702_R.jpg" width="300"> <img src="pictures/IMG_20210323_125946_R.jpg" width="300"> <img src="pictures/IMG_20210328_141742.jpg" width="604">
+
+### Old 3D-printed build
 
 <img src="pictures/IMG_20190720_185259.jpg" width="420"> <img src="pictures/IMG_20190726_192809.jpg" width="420"> <img src="pictures/IMG_20190727_130919.jpg" width="420"> <img src="pictures/IMG_20190727_131911.jpg" width="420">
 

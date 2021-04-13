@@ -3,6 +3,8 @@ Arduino Eurorack projects
 
 DIY Eurorack projects with Arduino and common C++ libraries.
 
+> 🛒 *Some of these modules are for sale on **[Reverb](https://reverb.com/shop/joeseggiola)** and **[Tindie](https://www.tindie.com/stores/joeseggiola/)**!*
+
 Modules
 -------
 
