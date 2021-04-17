@@ -8,10 +8,14 @@
 
 #define STEP 1
 #define DAC_ADDR 0
+#define LDAC_PIN 4
 
 MCP4728 dac;
 
 void setup() {
+	
+	pinMode(LDAC_PIN, OUTPUT);
+	digitalWrite(LDAC_PIN, LOW);
 	
 	Wire.begin();
 	dac.init(Wire, DAC_ADDR);
@@ -34,7 +38,7 @@ void setup() {
 void loop() {
 	
 	// STEP 1: Wait 15 minutes, then measure actual output in mV for the following 6 calibration 
-	// points, and pass the results to the commented calibration method in setup().
+	// points, and pass the results to the calibration methods in setup().
 	// Do this individually for each one of the 4 DACs
 	if (STEP == 1) {
 		unsigned int N = 6;
