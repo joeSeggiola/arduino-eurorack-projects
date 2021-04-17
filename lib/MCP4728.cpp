@@ -180,7 +180,7 @@ class MCP4728 {
 			int16_t v = 0;
 			for (uint8_t i = 0; i < 5; i++) {
 				if (i == 4 || data < cal_r_[ch][i]) { // Default is last segment (no range)
-					v = (data - cal_q_[ch][i]) * cal_m_[ch][i];
+					v = ((int16_t)data - cal_q_[ch][i]) * cal_m_[ch][i];
 					break;
 				}
 			}
