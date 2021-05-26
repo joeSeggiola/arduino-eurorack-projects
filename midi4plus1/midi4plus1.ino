@@ -1,7 +1,7 @@
 
 // CONFIGURATION =============================================================
 
-// Pin 1 is reserved for MIDI RX (PIN0->220Ω->DIN5, 5V->220Ω->DIN4).
+// Pin 1 is reserved for MIDI RX.
 // Pins A4 and A5 are reserved for the DAC I2C communication.
 
 const byte MODE_BUTTON = A0; // Main button pin
