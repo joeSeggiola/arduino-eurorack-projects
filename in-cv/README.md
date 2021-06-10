@@ -3,11 +3,11 @@ In CV
 
 A DIY Arduino-powered virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
 
-**[Arduino code][1]** | **[ModularGrid][7]** | [🛒 **Buy on Tindie**][6] | [🛒 **Buy on Reverb**][5] | **[YouTube demo][3]** | **[Muff Wiggler][4]**
+**[Arduino code][1]** | **[ModularGrid][7]** | **[YouTube demo][3]** | [🛒 **Buy on Tindie**][6] | [🛒 **Buy on Reverb**][5] | [🗨️ **Mod Wiggler**][4]
 
 [1]: in-cv.ino
 [3]: https://youtu.be/ea2zLXFY1C4
-[4]: https://www.muffwiggler.com/forum/viewtopic.php?f=17&t=227451
+[4]: https://modwiggler.com/forum/viewtopic.php?t=227451
 [5]: https://reverb.com/item/39927694-in-cv-terry-riley-s-in-c-implementation-for-eurorack
 [6]: https://www.tindie.com/products/23307/
 [7]: https://www.modulargrid.net/e/joeseggiola-in-cv
