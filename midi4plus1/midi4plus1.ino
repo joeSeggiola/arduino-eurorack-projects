@@ -5,7 +5,7 @@
 // Pins A4 and A5 are reserved for the DAC I2C communication.
 
 const byte MODE_BUTTON = A0; // Main button pin
-const byte MODE_LEDS[] = { A1, A2 }; // Bi-color LED pins for current mode display
+const byte MODE_LEDS[] = { A1, A2, A3 }; // RGB LED pins for current mode display
 
 const byte GATES[] { 3, 4, 5, 6 }; // Gate 1-4 pins
 const byte GATE_OR = 7; // Auxiliary gate pin, high when at least one gate is high
@@ -42,11 +42,13 @@ const bool DEBUG_WITH_TTYMIDI = false; // TRUE to use ttymidi bridge and print m
 
 #include <EEPROM.h>
 #include <MIDI.h>
+#include <SoftPWM.h>
 #include <Wire.h>
 
 #include "lib/Button.cpp"
 #include "lib/Led.cpp"
 #include "lib/MCP4728.cpp"
+#include "lib/MultiPointMap.cpp"
 
 #include "mono.cpp"
 #include "poly.cpp"
@@ -58,9 +60,16 @@ const bool DEBUG_WITH_TTYMIDI = false; // TRUE to use ttymidi bridge and print m
 #define MODE_POLY_MONO 2 // Keyboard split with 3x polyphony on lower keys, monophony on higher keys
 #define MODE_MONO_POLY 3 // Keyboard split with monophony on lower key, 3x polyphony on higher keys
 
+#define MODE_POLY_RGB 0x330000 // Red
+#define MODE_POLY_FIRST_RGB 0x003300 // Green
+#define MODE_POLY_MONO_RGB 0x0000CC // Blue
+#define MODE_MONO_POLY_RGB 0x3300CC // Pink
+
+#define CALIBRATION_RGB 0x3333CC // White
+
 Button modeButton;
-Led modeLed[2];
 MCP4728 dac;
+MultiPointMap calibration[4];
 Led gateLed[N];
 Led gateOrLed;
 Led noteOnLed;
@@ -77,7 +86,13 @@ unsigned long voiceLockLedTime = 0; // Time the mode LED has been turned off to 
 int pitchBend; // Pitch-bend value (all voices in poly modes, monophonic voice only in split modes)
 bool outputFlag; // TRUE if it's necessary to update the outputs
 
+bool calibrating = false; // TRUE if currently running the calibration process
+byte calibratingVoice; // Voice currently being calibrated
+byte calibratingInterval; // Calibration point index for the current voice
+int calibratingAddress; // EEPROM address to store the current calibration
+
 const int MODE_EEPROM_ADDRESS = 0;
+const int DAC_CALIBRATION_EEPROM_ADDRESS = 100;
 
 #define MIDI_NOTE_TO_CV_FACTOR 83.333333 // 1000/12, i.e. 1000mV per octave
 #define MIDI_PITCHBEND_MAX 8191 // Maximum value for pitch-bending, as given by MIDI.h library
@@ -87,6 +102,7 @@ const char NOTE_NAMES[12][3] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"
 // MIDI custom settings
 // https://github.com/FortySevenEffects/arduino_midi_library/wiki/Using-custom-Settings
 struct MIDISettings : public midi::DefaultSettings {
+	static const long BaudRate = 31250;
 	static const bool UseRunningStatus = false;
 	static const bool Use1ByteParsing = false;
 };
@@ -95,9 +111,6 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial, MIDI, MIDISettings);
 void setup() {
 	
 	// Init MIDI
-	MIDI.setHandleNoteOn(handleNoteOn);
-	MIDI.setHandleNoteOff(handleNoteOff);
-	MIDI.setHandlePitchBend(handlePitchBend);
 	MIDI.begin(MIDI_CHANNEL_OMNI); // Listen to all channels
 	MIDI.turnThruOff(); // Required after begin()
 	
@@ -109,14 +122,13 @@ void setup() {
 	
 	// Setup I/O
 	modeButton.init(MODE_BUTTON, BUTTON_DEBOUNCE_DELAY, true, true);
-	modeLed[0].init(MODE_LEDS[0]);
-	modeLed[1].init(MODE_LEDS[1]);
+	SoftPWMBegin(); // Software PWM for the mode RGB LED
 	pinMode(GATE_OR, OUTPUT);
 	gateOrLed.init(GATE_OR_LED, LED_MIN_DURATION_MS);
 	noteOnLed.init(NOTE_ON_LED, LED_MIN_DURATION_MS);
 	for (byte i = 0; i < N; i++) {
 		pinMode(GATES[i], OUTPUT);
-		gateLed[i].init(GATES_LEDS[i], LED_MIN_DURATION_MS);
+		gateLed[i].init(GATES_LEDS[i]);
 	}
 	
 	// Init I2C communication and DAC
@@ -127,28 +139,82 @@ void setup() {
 	dac.selectPowerDown(MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL, MCP4728::PWR_DOWN::NORMAL);
 	dac.selectGain(MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2);
 	
-	// DAC calibration
-	dac.calibrate(0, -11, 0.990099010);
-	dac.calibrate(1,  -9, 0.997008973);
-	dac.calibrate(2,  -5, 1.000250063);
-	dac.calibrate(3,  -2, 0.988142292);
+	// Load DACs calibration
+	int calibrationAddress = DAC_CALIBRATION_EEPROM_ADDRESS;
+	for (byte i = 0; i < 4; i++) {
+		calibration[i].init(4000);
+		calibrationAddress += calibration[i].load(calibrationAddress);
+	}
+	
+	// If mode button is pressed on boot, start calibration process
+	delay(100);
+	if (modeButton.readOnce()) {
+		setupCalibration();
+	} else {
+		setupMain();
+	}
+	
+}
+
+void setupMain() {
 	
 	// Init voice allocators
 	mono.init();
 	poly.init();
-	for (byte i = 0; i < N; i++) voiceMidiNote[i] = 12; // Init voices to C0
+	for (byte i = 0; i < N; i++) {
+		voiceMidiNote[i] = 12; // Init voices to C0
+	}
 	
 	bootAnimation();
+	
+	// Set minimum "on" duration on gate LEDs
+	for (byte i = 0; i < N; i++) {
+		gateLed[i].setMinDurationMs(LED_MIN_DURATION_MS);
+	}
 	
 	// Init mode from permanent storage
 	byte initialMode = EEPROM.read(MODE_EEPROM_ADDRESS) % 4;
 	setMode(initialMode);
+	
+	// MIDI callbacks
+	MIDI.setHandleNoteOn(handleNoteOn);
+	MIDI.setHandleNoteOff(handleNoteOff);
+	MIDI.setHandlePitchBend(handlePitchBend);
+	
+}
+
+void setupCalibration() {
+	
+	// Start calibration process
+	calibrating = true;
+	calibratingVoice = 0;
+	calibratingInterval = 0;
+	calibratingAddress = DAC_CALIBRATION_EEPROM_ADDRESS;
+	setModeLedColor(CALIBRATION_RGB);
+	
+	// MIDI callback
+	MIDI.setHandleNoteOn(handleCalibrationOffset);
 	
 }
 
 void loop() {
 	
 	MIDI.read();
+	
+	if (calibrating) {
+		loopCalibration();
+	} else {
+		loopMain();
+	}
+	
+	// Update LEDs
+	gateOrLed.loop();
+	noteOnLed.loop();
+	for (byte i = 0; i < N; i++) gateLed[i].loop();
+	
+}
+
+void loopMain() {
 	
 	// Check if retrig intervals are over
 	for (byte i = 0; i < N; i++) {
@@ -180,12 +246,57 @@ void loop() {
 		setModeLed();
 	}
 	
-	// Update LEDs
-	gateOrLed.loop();
-	noteOnLed.loop();
-	modeLed[0].loop();
-	modeLed[1].loop();
-	for (byte i = 0; i < N; i++) gateLed[i].loop();
+}
+
+void loopCalibration() {
+	
+	// Button advance through calibration points and voices
+	if (modeButton.readOnce()) {
+		calibratingInterval++;
+		if (calibratingInterval == calibration[calibratingVoice].size()) {
+			
+			// Voice calibration completed, save and advance to next voice
+			calibratingAddress += calibration[calibratingVoice].save(calibratingAddress);
+			calibratingVoice++;
+			calibratingInterval = 0;
+			
+			// Calibration completed?
+			if (calibratingVoice == N || calibratingVoice == 4) {
+				calibrating = false;
+				for (byte i = 0; i < N; i++) gateLed[i].off();
+				setModeLedColor(0x000000);
+				delay(1000);
+				setupMain();
+				return;
+			}
+			
+		}
+	}
+	
+	// Show which voice is currently being calibrated
+	for (byte i = 0; i < N; i++) {
+		gateLed[i].set(i == calibratingVoice);
+	}
+	
+	if (millis() % 50 == 0) {
+		
+		// Update DAC values
+		unsigned int size = calibration[calibratingVoice].size();
+		unsigned int step = calibration[calibratingVoice].getStep();
+		unsigned int value = step * (calibratingInterval + 1);
+		dac.analogWrite(
+			calibration[0].map(calibratingVoice == 0 ? value : (calibratingVoice > 0 ? step * size : 0)), 
+			calibration[1].map(calibratingVoice == 1 ? value : (calibratingVoice > 1 ? step * size : 0)), 
+			calibration[2].map(calibratingVoice == 2 ? value : (calibratingVoice > 2 ? step * size : 0)), 
+			calibration[3].map(calibratingVoice == 3 ? value : (calibratingVoice > 3 ? step * size : 0))
+		);
+		
+		// Update gates
+		for (byte i = 0; i < N; i++) {
+			digitalWrite(GATES[i], calibratingVoice == i);
+		}
+		
+	}
 	
 }
 
@@ -242,8 +353,9 @@ void voicesLock() {
 	
 	// Turn off the mode LED to signal (un)locking
 	voiceLockLedTime = millis();
-	modeLed[0].off();
-	modeLed[1].off();
+	SoftPWMSet(MODE_LEDS[0], 0);
+	SoftPWMSet(MODE_LEDS[1], 0);
+	SoftPWMSet(MODE_LEDS[2], 0);
 	
 }
 
@@ -284,7 +396,12 @@ void output() {
 			dacValues[i] = 0;
 		}
 	}
-	dac.analogWrite(dacValues[0], dacValues[1], dacValues[2], dacValues[3]);
+	dac.analogWrite(
+		calibration[0].map(dacValues[0]), 
+		calibration[1].map(dacValues[1]), 
+		calibration[2].map(dacValues[2]), 
+		calibration[3].map(dacValues[3])
+	);
 	
 	// Update gates
 	for (byte i = 0; i < N; i++) {
@@ -308,9 +425,18 @@ void output() {
 }
 
 void setModeLed() {
-	modeLed[0].set(mode == MODE_POLY || mode == MODE_POLY_FIRST); // Red
-	modeLed[1].set(mode == MODE_POLY_FIRST || mode == MODE_POLY_MONO || mode == MODE_MONO_POLY); // Green
-	if (mode == MODE_MONO_POLY) modeLed[0].blink(20, 0.2); // Dim the red LED to make yellow (red + green)
+	switch (mode) {
+		case MODE_POLY: setModeLedColor(MODE_POLY_RGB); break;
+		case MODE_POLY_FIRST: setModeLedColor(MODE_POLY_FIRST_RGB); break;
+		case MODE_POLY_MONO: setModeLedColor(MODE_POLY_MONO_RGB); break;
+		case MODE_MONO_POLY: setModeLedColor(MODE_MONO_POLY_RGB); break;
+	}
+}
+
+void setModeLedColor(unsigned long color) {
+	SoftPWMSet(MODE_LEDS[0], (color >> 16) & 0xFF);
+	SoftPWMSet(MODE_LEDS[1], (color >> 8) & 0xFF);
+	SoftPWMSet(MODE_LEDS[2], color & 0xFF);
 }
 
 void handleNoteOn(byte channel, byte note, byte velocity) {
@@ -362,6 +488,16 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 void handlePitchBend(byte channel, int bend) {
 	pitchBend = bend;
 	outputFlag = true;
+}
+
+void handleCalibrationOffset(byte channel, byte note, byte velocity) {
+	if (calibrating) {
+		noteOnLed.flash();
+		gateOrLed.flash();
+		int offset = note >= (4 + 1) * 12 ? 1 : -1; // Split the keyboard in half on middle C
+		int v = calibration[calibratingVoice].get(calibratingInterval); // Current point value
+		calibration[calibratingVoice].set(calibratingInterval, max(0, v + offset)); // Move current point
+	}
 }
 
 bool isNoteForMonophony(byte note) {
@@ -435,22 +571,21 @@ void debugVoices() {
 void bootAnimation() {
 	
 	// Turn on all LEDs
-	gateOrLed.on();
 	for (byte i = 0; i < N; i++) {
-		delay(100);
 		gateLed[i].on();
+		delay(100);
 	}
-	
-	// Wait and turn them off
+	gateOrLed.on();
 	delay(200);
-	gateOrLed.off();
-	delay(100);
-	gateOrLed.loop();
+	
+	// Turn them off
 	for (byte i = 0; i < N; i++) {
 		gateLed[i].off();
 		delay(100);
-		for (byte j = 0; j < N; j++) gateLed[j].loop();
-		gateOrLed.loop();
 	}
+	gateOrLed.off();
+	delay(100);
+	gateOrLed.loop();
+	delay(200);
 	
 }
