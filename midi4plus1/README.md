@@ -3,10 +3,10 @@ MIDI 4+1
 
 A DIY Arduino-powered MIDI to 4x CV/gate interface in 6HP, with both polyphonic and monophonic voice allocation modes.
 
-**[Arduino code][1]** | **[3D model][2]** | **[YouTube demo][5]** | [🗨️ **Mod Wiggler**][3] | [🗨️ **Lines**][4]
+**[Arduino code][1]** | **[PCB][2]** | **[YouTube demo][5]** | [🗨️ **Mod Wiggler**][3] | [🗨️ **Lines**][4]
 
 [1]: midi4plus1.ino
-[2]: plate.stl
+[2]: pcb/
 [3]: https://www.modwiggler.com/forum/viewtopic.php?t=231861
 [4]: https://llllllll.co/t/midi-4-1-arduino-powered-polyphonic-and-monophonic-midi-to-4x-cv-gate-interface-in-6hp/32543
 [5]: https://youtu.be/g9WwDo7eYi4
@@ -59,8 +59,8 @@ Pictures
 Thanks
 ------
 
-- Emilie Gillet's [CVpal][10] (polyphonic voice allocator and monophonic notes stack)
-- Befaco [MIDI Thing][11]
+- Emilie Gillet's [CVpal][10] (polyphonic voice allocator, monophonic notes stack, calibration)
+- Befaco [MIDI Thing][11] (form factor, calibration)
 - François Best's [Arduino MIDI Library][12]
 
 [10]: https://github.com/pichenettes/cvpal
