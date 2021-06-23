@@ -34,7 +34,7 @@ Uploading a new sketch requires disconnecting the MIDI input circuit from the Ar
 
 Power on your modular system with the button pressed: the mode LED lights up in white to show you entered the DACs calibration procedure. Gate LEDs show which CV output is currently being calibrated. The procedure requires measuring the output voltage using a multimeter with mV precision (0.001V).
 
-The first CV output should be around 0.500V: use a MIDI instrument to send any note below C4 to decrease the measured value, or any note above C4 to increase it, until you get exactly 0.500V. Now press the button to advance to the next calibration point, that is 1.000V, and adjust the measured value again. There are 8 calibration points for each CV output (configurable in code), after which the calibration process is repeated for the second, third and fourth CV output, as shown by gate LEDs.
+The first CV output should be around 0.5V: use a MIDI instrument to send any note below C4 to decrease the measured value, or any note above C4 to increase it, until you get exactly 0.500V. Now press the button to advance to the next calibration point, that is 1.000V, and adjust the measured value again. There are 8 calibration points for each CV output (configurable in code), after which the calibration process is repeated for the second, third and fourth CV output, as shown by gate LEDs.
 
 At the end of the whole procedure, the module will reboot itself and all CV outputs will track 1V/oct accurately. Calibration data is stored in Arduino EEPROM memory, so it's persisted across reboots and won't be lost by uploading a new sketch.
 
@@ -50,7 +50,7 @@ Pictures
 
 ### New PCB build
 
-<img src="pictures/IMG_20210621_140800.jpg" height="320"> <img src="pictures/IMG_20210621_140842.jpg" height="320"> <img src="pictures/IMG_20210620_175313.jpg" height="320">
+<img src="pictures/IMG_20210621_140800.jpg" height="320"> <img src="pictures/IMG_20210621_140903.jpg" height="320"> <img src="pictures/IMG_20210620_175313.jpg" height="320">
 
 ### Old 3D-printed build
 
