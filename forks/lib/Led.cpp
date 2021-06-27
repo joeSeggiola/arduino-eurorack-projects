@@ -114,14 +114,6 @@ class Led {
 			this->set(false);
 		}
 		
-		/** 
-		 * Set the optional minimum "on" duration for user visibility
-		 */
-		void setMinDurationMs(unsigned int minDurationMs = 0) {
-			this->minDurationMs = minDurationMs;
-			this->loop();
-		}
-		
 	private:
 		byte pin;
 		unsigned int minDurationMs;

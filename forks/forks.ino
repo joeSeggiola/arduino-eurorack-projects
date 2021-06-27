@@ -28,9 +28,9 @@ const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all L
 
 // ===========================================================================
 
-#include "lib/Led.cpp"
 #include "lib/Button.cpp"
 #include "lib/Knob.cpp"
+#include "lib/Led.cpp"
 
 unsigned int n = 0; // Number of channels
 

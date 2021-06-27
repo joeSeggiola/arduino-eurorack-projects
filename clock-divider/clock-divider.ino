@@ -3,13 +3,13 @@
 
 const bool DEBUG = false; // FALSE to disable debug messages on serial port
 
-const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const int CLOCK_LED = 1; // LED pin for input signal indication
+const int CLOCK_INPUT = 2; // Input signal pin, must be usable for interrupts
 const int RESET_INPUT = 3; // Reset signal pin, must be usable for interrupts
-const int RESET_BUTTON = 12; // Reset button pin
+const int RESET_BUTTON = 4; // Reset button pin
 
 const int DIVISIONS[] { 2, 3, 4, 5, 6, 8, 16, 32 }; // Integer divisions of the input clock (max 32 values)
-const int DIVISIONS_OUTPUT[] { 4, 5, 6, 7, 8, 9, 10, 11 }; // Output pins
+const int DIVISIONS_OUTPUT[] { 5, 6, 7, 8, 9, 10, 11, 12 }; // Output pins
 const int DIVISIONS_LEDS[] { 0, A5, A4, A3, A2, A1, A0, 13 }; // LEDs pins
 
 const unsigned long MODE_SWITCH_LONG_PRESS_DURATION_MS = 3000; // Reset button long-press duration for trig/gate mode switch
@@ -19,8 +19,9 @@ const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all L
 // ===========================================================================
 
 #include <EEPROM.h>
-#include "lib/Led.cpp"
+
 #include "lib/Button.cpp"
+#include "lib/Led.cpp"
 
 unsigned int n = 0; // Number of divisions
 long count = -1; // Input clock counter, -1 in order to go to 0 no the first pulse

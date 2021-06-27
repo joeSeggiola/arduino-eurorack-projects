@@ -1,9 +1,9 @@
-#ifndef MM74HC595M_h
-#define MM74HC595M_h
+#ifndef SR74HC595_h
+#define SR74HC595_h
 
 #include "Arduino.h"
 
-class MM74HC595M {
+class SR74HC595 {
 	
 	public:
 		
