@@ -14,7 +14,7 @@ const byte PERFORMER_GATE_LEDS[] { 7, 8, 9, 10, 11, 12 }; // LEDs pins for showi
 const byte PERFORMER_ALERT_BEHIND = 3; // LED will start blinking if performer is left behind by this number of patterns
 
 const byte RESET_BUTTON = A0; // Pin for the reset button
-const unsigned long RESET_BUTTON_LONG_PRESS_MS = 2000; // The reset button must be long-pressed to reset
+const unsigned long RESET_BUTTON_LONG_PRESS_MS = 4000; // The reset button must be long-pressed to reset
 const unsigned long DISPLAY_LATE_PERFORMERS_MS = 2000; // How long lit up the LEDs to display late performers
 
 const byte GATES_SHIFT_REGISTER_DATA = A3; // 74HC595 serial data input (SER)
@@ -40,8 +40,8 @@ const float LED_BLINK_DUTY = 0.1; // Blink duty cycle, to adjust overall brightn
 #include "lib/Button.cpp"
 #include "lib/Led.cpp"
 #include "lib/MCP4728.cpp"
-#include "lib/MM74HC595M.cpp"
-#include "lib/MemoryFree.cpp"
+#include "lib/MultiPointMap.cpp"
+#include "lib/SR74HC595.cpp"
 #include "patterns/patterns.h"
 
 // Maximum number of performers, used to allocate memory structures.
@@ -57,7 +57,8 @@ const float LED_BLINK_DUTY = 0.1; // Blink duty cycle, to adjust overall brightn
 // DACs and shift register, for all performers
 MCP4728 dac1;
 MCP4728 dac2;
-MM74HC595M gates;
+MultiPointMap calibration[N_MAX];
+SR74HC595 gates;
 
 // Reset button
 Button resetButton;
@@ -107,6 +108,15 @@ unsigned long clockCount = 0; // Clock pulses global counter
 unsigned long stepTime = 0; // The duration in ms of a sequence step, it depends on clock frequency
 Led clockLed;
 
+bool calibrating = false; // TRUE if currently running the calibration process
+byte calibratingPerformer; // Performer currently being calibrated
+byte calibratingInterval; // Calibration point index for the current performer
+int calibratingAddress; // EEPROM address to store the current calibration
+unsigned long calibrationButtonLast[2]; // Last time a calibration button press has been registered
+
+// Address of DACs calibration data in EEPROM memory
+const int DAC_CALIBRATION_EEPROM_ADDRESS = 100;
+
 unsigned long statusDebugLastTime = 0;
 
 void setup() {
@@ -133,7 +143,7 @@ void setup() {
 	// Init performers and their sequences
 	for (byte p = 0; p < n; p++) {
 		performerButton[p].init(PERFORMER_BUTTONS[p], BUTTON_DEBOUNCE_DELAY, true, true);
-		performerGateLed[p].init(PERFORMER_GATE_LEDS[p], LED_MIN_DURATION_MS);
+		performerGateLed[p].init(PERFORMER_GATE_LEDS[p]);
 		performerButtonLastTime[p] = 0;
 		sequenceLastStepTime[p] = 0;
 	}
@@ -156,28 +166,52 @@ void setup() {
 		dac2.selectGain(MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2, MCP4728::GAIN::X2);
 	}
 	
-	// DACs calibration
-	dac1.calibrate(0, 0, 400, 1000, 2000, 3000, 4000);
-	dac1.calibrate(1, 0, 400, 1000, 2000, 3000, 4000);
-	dac1.calibrate(2, 0, 400, 1000, 2000, 3000, 4000);
-	dac1.calibrate(3, 0, 400, 1000, 2000, 3000, 4000);
-	if (n > 4) {
-		dac2.calibrate(0, 0, 400, 1000, 2000, 3000, 4000);
-		dac2.calibrate(1, 0, 400, 1000, 2000, 3000, 4000);
-		dac2.calibrate(2, 0, 400, 1000, 2000, 3000, 4000);
-		dac2.calibrate(3, 0, 400, 1000, 2000, 3000, 4000);
+	// Load DACs calibration
+	int calibrationAddress = DAC_CALIBRATION_EEPROM_ADDRESS;
+	for (byte p = 0; p < n; p++) {
+		calibration[p].init(4000);
+		calibrationAddress += calibration[p].load(calibrationAddress);
 	}
 	
 	// Init clock
-	clockLed.init(CLOCK_LED, LED_MIN_DURATION_MS);
+	clockLed.init(CLOCK_LED);
 	pinMode(CLOCK_INPUT, INPUT);
 	
+	// If reset button is pressed on boot, start calibration process
+	delay(100);
+	if (resetButton.readOnce()) {
+		setupCalibration();
+	} else {
+		setupMain();
+	}
+	
+}
+
+void setupMain() {
+	
 	bootAnimation();
+	
+	// Set minimum "on" duration on LEDs
+	clockLed.setMinDurationMs(LED_MIN_DURATION_MS);
+	for (byte p = 0; p < n; p++) performerGateLed[p].setMinDurationMs(LED_MIN_DURATION_MS);
 	
 	// Start listening for input clock
 	attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT), clockISR, RISING);
 	
 	reset(0);
+	
+}
+
+void setupCalibration() {
+	
+	// Start calibration process
+	calibrating = true;
+	calibratingPerformer = 0;
+	calibratingInterval = 0;
+	calibratingAddress = DAC_CALIBRATION_EEPROM_ADDRESS;
+	calibrationButtonLast[0] = 0;
+	calibrationButtonLast[1] = 0;
+	clockLed.on();
 	
 }
 
@@ -202,8 +236,17 @@ void reset(unsigned long t) {
 	
 	// Tuning mode, setting all DACs to a fixed reference
 	gates.write(0);
-	dac1.analogWrite(TUNING_CV, TUNING_CV, TUNING_CV, TUNING_CV);
-	if (n > 4) dac2.analogWrite(TUNING_CV, TUNING_CV, TUNING_CV, TUNING_CV);
+	unsigned int dacValues[8];
+	for (byte i = 0; i < 8; i++) {
+		if (i < n) {
+			sequenceLastCV[i] = TUNING_CV;
+			dacValues[i] = calibration[i].map(TUNING_CV);
+		} else {
+			dacValues[i] = 0;
+		}
+	}
+	dac1.analogWrite(dacValues[0], dacValues[1], dacValues[2], dacValues[3]);
+	if (n > 4) dac2.analogWrite(dacValues[4], dacValues[5], dacValues[6], dacValues[7]);
 	
 	if (DEBUG) {
 		if (t > 0) Serial.println(F("RESET"));
@@ -212,6 +255,19 @@ void reset(unsigned long t) {
 }
 
 void loop() {
+	
+	if (calibrating) {
+		loopCalibration();
+	} else {
+		loopMain();
+	}
+	
+	clockLed.loop();
+	for (byte p = 0; p < n; p++) performerGateLed[p].loop();
+	
+}
+
+void loopMain() {
 	
 	unsigned long t = millis();
 	
@@ -244,11 +300,44 @@ void loop() {
 	if (resetButtonRead == 2) reset(t);
 	displayLatePerformers(resetButtonRead == 1, t);
 	
-	clockLed.loop();
-	for (byte p = 0; p < n; p++) performerGateLed[p].loop();
-	
 	if (DEBUG) {
 		if (t > statusDebugLastTime + 4000) debugStatus(t);
+	}
+	
+}
+
+void loopCalibration() {
+	
+	// Button advance through calibration points and performers
+	if (resetButton.readOnce()) {
+		bool calibrationCompleted = calibrationAdvance();
+		if (calibrationCompleted) {
+			setupMain();
+			return;
+		}
+	}
+	
+	// Show which performer is currently being calibrated
+	for (byte p = 0; p < n; p++) {
+		performerGateLed[p].set(p == calibratingPerformer);
+	}
+	
+	// Adjust calibration offset with the first two buttons
+	for (int i = 0; i < 2; i++) {
+		if (performerButton[i].read()) {
+			if (millis() >= calibrationButtonLast[i] + 200) {
+				int offset = i > 0 ? 1 : -1; // The second button increases the point value
+				int v = calibration[calibratingPerformer].get(calibratingInterval); // Current point value
+				calibration[calibratingPerformer].set(calibratingInterval, max(0, v + offset)); // Move current point
+				calibrationButtonLast[i] = millis(); // Throttle repeats
+			}
+		} else {
+			calibrationButtonLast[i] = 0;
+		}
+	}
+	
+	if (millis() % 50 == 0) {
+		calibrationUpdate();
 	}
 	
 }
@@ -282,9 +371,9 @@ void patternLoad(byte p, byte i, int offset, unsigned long t) {
 	// Create the sequence from the pattern
 	unsigned int length = 0;
 	byte size = pgm_read_byte(PATTERNS_SIZE + i);
-	byte* cvs = pgm_read_word(PATTERNS_CV_INDEX + i);
-	byte* durations = pgm_read_word(PATTERNS_DURATION + i);
-	byte* slides = pgm_read_word(PATTERNS_SLIDE + i);
+	byte* cvs = (byte*)pgm_read_word(PATTERNS_CV_INDEX + i);
+	byte* durations = (byte*)pgm_read_word(PATTERNS_DURATION + i);
+	byte* slides = (byte*)pgm_read_word(PATTERNS_SLIDE + i);
 	sequenceAcciaccatura[p] = pgm_read_word(PATTERNS_ACCIACCATURA_CV + i);
 	for (byte j = 0; j < size; j++) {
 		byte cv = pgm_read_byte(cvs + j); // CV index
@@ -334,8 +423,6 @@ void patternLoad(byte p, byte i, int offset, unsigned long t) {
 		Serial.print(p + 1);
 		Serial.print(F(" - Length: "));
 		Serial.print(sequenceLength[p]);
-		Serial.print(F(" - Free memory: "));
-		Serial.print(freeMemory());
 		Serial.println(F(" bytes"));
 		if (i > 0) debugStatus(t);
 	}
@@ -520,7 +607,7 @@ void sequenceLoop(unsigned long t) {
 	
 	if (updateCV[0] || updateCV[1]) {
 		unsigned int dacValues[8];
-		for (byte i = 0; i < 8; i++) dacValues[i] = i < n ? sequenceLastCV[i] : 0;
+		for (byte i = 0; i < 8; i++) dacValues[i] = i < n ? calibration[i].map(sequenceLastCV[i]) : 0;
 		if (updateCV[0]) dac1.analogWrite(dacValues[0], dacValues[1], dacValues[2], dacValues[3]);
 		if (updateCV[1]) dac2.analogWrite(dacValues[4], dacValues[5], dacValues[6], dacValues[7]);
 	}
@@ -591,6 +678,54 @@ void clockISR() {
 	clockFlag = true;
 }
 
+boolean calibrationAdvance() {
+	calibratingInterval++;
+	if (calibratingInterval == calibration[calibratingPerformer].size()) {
+		
+		// Performer calibration completed, save and advance to next performer
+		calibratingAddress += calibration[calibratingPerformer].save(calibratingAddress);
+		calibratingPerformer++;
+		calibratingInterval = 0;
+		
+		// Calibration completed?
+		if (calibratingPerformer == n) {
+			calibrating = false;
+			for (byte p = 0; p < n; p++) performerGateLed[p].off();
+			clockLed.off();
+			delay(1000);
+			return true;
+		}
+		
+	}
+	return false;
+}
+
+void calibrationUpdate() {
+	
+	// Update DACs values
+	unsigned int size = calibration[calibratingPerformer].size();
+	unsigned int step = calibration[calibratingPerformer].getStep();
+	unsigned int value = step * (calibratingInterval + 1);
+	unsigned int dacValues[8];
+	for (byte i = 0; i < 8; i++) {
+		if (i < n) {
+			if (calibratingPerformer == i) {
+				dacValues[i] = calibration[i].map(value);
+			} else {
+				dacValues[i] = calibratingPerformer > i ? calibration[i].map(step * size) : 0;
+			}
+		} else {
+			dacValues[i] = 0;
+		}
+	}
+	dac1.analogWrite(dacValues[0], dacValues[1], dacValues[2], dacValues[3]);
+	if (n > 4) dac2.analogWrite(dacValues[4], dacValues[5], dacValues[6], dacValues[7]);
+	
+	// Update gates
+	gates.write(1 << calibratingPerformer);
+	
+}
+
 int integerModulo(int a, int b) {
 	return (((a % b) + b) % b); // http://yourdailygeekery.com/2011/06/28/modulo-of-negative-numbers.html
 }
@@ -642,12 +777,10 @@ void bootAnimation() {
 	delay(200);
 	clockLed.off();
 	delay(100);
-	clockLed.loop();
 	for (byte p = 0; p < n; p++) {
 		performerGateLed[p].off();
 		delay(100);
-		for (byte p = 0; p < n; p++) performerGateLed[p].loop();
-		clockLed.loop();
 	}
+	delay(200);
 	
 }

@@ -15,6 +15,6 @@
     "jest": "^24.8.0"
   },
   "dependencies": {
-    "mathjs": "^5.10.3"
+    "mathjs": "^7.6.0"
   }
 }
