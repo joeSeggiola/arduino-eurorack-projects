@@ -3,7 +3,7 @@
 // Link: https://github.com/hideakitai/MCP4728
 // Author: Hideaki Tai
 // License: MIT (https://github.com/hideakitai/MCP4728/blob/master/LICENSE)
-// Extended by Joe Seggiola to include optional LDAC and calibration
+// Extended by Joe Seggiola to include optional LDAC
 
 #pragma once
 #ifndef MCP4728_H
@@ -34,10 +34,6 @@ class MCP4728 {
 			wire_ = &w;
 			addr_ = I2C_ADDR + addr;
 			pin_ldac_ = pin;
-			calibrate(0, 0, 1.0);
-			calibrate(1, 0, 1.0);
-			calibrate(2, 0, 1.0);
-			calibrate(3, 0, 1.0);
 			if (pin_ldac_ > -1) {
 				pinMode(pin_ldac_, OUTPUT);
 				enable(false);
@@ -45,27 +41,6 @@ class MCP4728 {
 			readRegisters();
 		}
 		
-		// Multi-point calibration method: send nominal values and pass actual measured mV values
-		void calibrate(uint8_t ch, int16_t m0, int16_t m400, int16_t m1000, int16_t m2000, int16_t m3000, int16_t m4000) {
-			uint8_t N = 6;
-			int16_t points[] = { 0, 400, 1000, 2000, 3000, 4000 }; // Nominal values
-			int16_t values[] = { m0, m400, m1000, m2000, m3000, m4000 }; // Actual measured values
-			for (uint8_t i = 1; i < N; i++) {
-				float x1 = points[i - 1], x2 = points[i];
-				float y1 = values[i - 1], y2 = values[i];
-				if (i < N - 1) cal_r_[ch][i - 1] = values[i]; // Range definition
-				cal_m_[ch][i - 1] = (x1 - x2) / (y1 - y2); // Inverse of segment slope
-				cal_q_[ch][i - 1] = ((x1 * y2 - x2 * y1) / (x1 - x2)) + 0.5; // Segment intercept (0.5 is for rounding)
-			}
-		}
-		
-		// Compatibility (old) calibration method: single full linear range
-		void calibrate(uint8_t ch, int16_t offset, float gain) {
-			cal_r_[ch][0] = 0xFFFF;
-			cal_m_[ch][0] = gain;
-			cal_q_[ch][0] = -offset;
-		}
-
 		void enable(bool b) {
 			if (pin_ldac_ > -1) {
 				digitalWrite(pin_ldac_, !b);
@@ -74,26 +49,26 @@ class MCP4728 {
 
 		uint8_t analogWrite(uint8_t ch, uint16_t data, bool b_eep = false) {
 			if (b_eep) {
-				eep_[ch].data = this->getCalibratedData(ch, data);
+				eep_[ch].data = data > 0xFFF ? 0xFFF : data;
 				return singleWrite(ch);
 			} else {
-				reg_[ch].data = this->getCalibratedData(ch, data);
+				reg_[ch].data = data > 0xFFF ? 0xFFF : data;
 				return fastWrite();
 			}
 		}
 
 		uint8_t analogWrite(uint16_t a, uint16_t b, uint16_t c, uint16_t d, bool b_eep = false) {
 			if (b_eep) {
-				reg_[0].data = eep_[0].data = this->getCalibratedData(0, a);
-				reg_[1].data = eep_[1].data = this->getCalibratedData(1, b);
-				reg_[2].data = eep_[2].data = this->getCalibratedData(2, c);
-				reg_[3].data = eep_[3].data = this->getCalibratedData(3, d);
+				reg_[0].data = eep_[0].data = a > 0xFFF ? 0xFFF : a;
+				reg_[1].data = eep_[1].data = b > 0xFFF ? 0xFFF : b;
+				reg_[2].data = eep_[2].data = c > 0xFFF ? 0xFFF : c;
+				reg_[3].data = eep_[3].data = d > 0xFFF ? 0xFFF : d;
 				return seqWrite();
 			} else {
-				reg_[0].data = this->getCalibratedData(0, a);
-				reg_[1].data = this->getCalibratedData(1, b);
-				reg_[2].data = this->getCalibratedData(2, c);
-				reg_[3].data = this->getCalibratedData(3, d);
+				reg_[0].data = a > 0xFFF ? 0xFFF : a;
+				reg_[1].data = b > 0xFFF ? 0xFFF : b;
+				reg_[2].data = c > 0xFFF ? 0xFFF : c;
+				reg_[3].data = d > 0xFFF ? 0xFFF : d;
 				return fastWrite();
 			}
 		}
@@ -176,17 +151,6 @@ class MCP4728 {
 		
 	private:
 		
-		uint16_t getCalibratedData(uint8_t ch, uint16_t data) {
-			int16_t v = 0;
-			for (uint8_t i = 0; i < 5; i++) {
-				if (i == 4 || data < cal_r_[ch][i]) { // Default is last segment (no range)
-					v = ((int16_t)data - cal_q_[ch][i]) * cal_m_[ch][i];
-					break;
-				}
-			}
-			return v < 0 ? 0 : (v > 0xFFF ? 0xFFF : v);
-		}
-
 		uint8_t fastWrite() {
 			wire_->beginTransmission(addr_);
 			for (uint8_t i = 0; i < 4; ++i) {
@@ -243,10 +207,6 @@ class MCP4728 {
 		DACInputData read_reg_[4];
 		DACInputData read_eep_[4];
 		
-		int16_t cal_r_[4][4]; // Ranges definition
-		float cal_m_[4][5]; // Inverse of segments slope
-		int16_t cal_q_[4][5]; // Segments intercept
-
 		TwoWire* wire_;
 	
 };
