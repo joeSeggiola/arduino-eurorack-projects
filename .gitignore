@@ -1,5 +1,4 @@
 *.fcstd1
 */plate-sheet.*
 */pcb/update-pcbs.sh
-tools/mcp4728_calibration/mcp4728_calibration_data.*
 tools/test
