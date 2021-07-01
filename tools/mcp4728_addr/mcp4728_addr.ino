@@ -27,8 +27,8 @@
 #define SDA_PIN A4
 #define LDAC_PIN 4
 
-#define CURRENT_DEVICE_ID 1
-#define NEW_DEVICE_ID 1
+#define CURRENT_DEVICE_ID 0
+#define NEW_DEVICE_ID 0
 
 SoftI2cMaster i2c;
 MCP4728 dac;
