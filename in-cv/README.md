@@ -60,7 +60,7 @@ Pictures
 
 <img src="pictures/IMG_20210323_125702_R.jpg" width="300"> <img src="pictures/IMG_20210323_125946_R.jpg" width="300"> <img src="pictures/IMG_20210328_141742.jpg" width="604">
 
-### Old 3D-printed build
+### Old [3D-printed](3d/) build
 
 <img src="pictures/IMG_20190720_185259.jpg" width="420"> <img src="pictures/IMG_20190726_192809.jpg" width="420"> <img src="pictures/IMG_20190727_130919.jpg" width="420"> <img src="pictures/IMG_20190727_131911.jpg" width="420">
 

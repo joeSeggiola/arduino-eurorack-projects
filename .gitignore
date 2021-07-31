@@ -1,4 +1,4 @@
-*.fcstd1
-*/plate-sheet.*
+**/*.fcstd1
+**/plate-sheet.*
 */pcb/update-pcbs.sh
 tools/test
