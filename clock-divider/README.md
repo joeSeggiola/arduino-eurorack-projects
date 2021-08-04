@@ -1,12 +1,13 @@
 Clock divider
 =============
 
-A DIY Arduino-powered clock divider in 4HP, with 3D-printed faceplate.
+A DIY Arduino-powered clock divider in 4HP.
 
-**[Arduino code][1]** | **[PCB][2]** | [🗨️ **Mod Wiggler**][4]
+**[Arduino code][1]** | **[ModularGrid][2]** | [🛒 **Buy on Tindie**][3] | [🗨️ **Mod Wiggler**][4]
 
 [1]: clock-divider.ino
-[2]: pcb/
+[2]: https://www.modulargrid.net/e/joeseggiola-clock-divider
+[3]: https://www.tindie.com/products/joeseggiola/clock-divider-pcb-panel/
 [4]: https://modwiggler.com/forum/viewtopic.php?t=214669
 
 Features
@@ -29,6 +30,8 @@ Pictures
 --------
 
 ### New PCB build
+
+[🛒 **Buy on Tindie**][3]
 
 <img src="pictures/IMG_20210702_130542.jpg" width="420"> <img src="pictures/IMG_20210702_130610.jpg" width="420"> 
 
