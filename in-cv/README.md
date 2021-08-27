@@ -64,6 +64,19 @@ Pictures
 
 <img src="pictures/IMG_20190720_185259.jpg" width="420"> <img src="pictures/IMG_20190726_192809.jpg" width="420"> <img src="pictures/IMG_20190727_130919.jpg" width="420"> <img src="pictures/IMG_20190727_131911.jpg" width="420">
 
+Performance tips and tricks
+---------------------------
+
+* Always **tune all your voices** before each performance. In the initial state, the module plays a steady C note on all performers (with no gate): use that make sure every oscillator you're going to use is correctly tuned to C on any octaves you like (or another note if you want to play it trasposed).
+
+* You **don't have to use all six performers:** you can simply never activate some by never pressing their buttons. They will never start playing the first pattern, and they won't be considered being late. Use this to your advantage if you have a small system with only a few voices.
+
+* Don't be afraid to often completely pause one or more performers! [In C directions](https://teropa.info/blog/2017/01/23/terry-rileys-in-c.html#a-musical-possibility-spacethe-open-architecture-of-in-c) say "it is very important that performers listen very carefully to one another and this means occasionally to **drop out** and listen". You can pause a performer by long-pressing its button: the LED will flash waiting for the end of the loop, and then the performer will rest until the button is pressed again. This also means that resuming can also be used to change the "phase" of the pattern relative to the others.
+
+* Although the directions do not say it, the performers on the module can **skip patterns**! You have to quickly press the button multiple times before the loop ends. You normally press it once, and the performer advances to the next pattern. If you press it twice it'll skip one pattern (eg. when it reaches the end of #12 it'll start playing #14), three times and it'll skip two.
+
+* Often use the main button to **display late performers**. When using this function, the LEDs stop blinking notes, and light up for 2 seconds if their performer is 3 or more patterns behind. Please be aware that if you keep the main button pressed for 4 seconds, the module will reset! Directions say to "stay within 2 or 3 patterns of each other".
+
 Thanks
 ------
 
