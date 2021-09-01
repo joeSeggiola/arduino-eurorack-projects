@@ -9,7 +9,7 @@ A DIY Arduino-powered virtual ensemble that plays Terry Riley's "In C" on CV/gat
 [3]: https://youtu.be/ea2zLXFY1C4
 [4]: https://modwiggler.com/forum/viewtopic.php?t=227451
 [5]: https://reverb.com/item/39927694-in-cv-terry-riley-s-in-c-implementation-for-eurorack
-[6]: https://www.tindie.com/products/joeseggiola/in-cv-eurorack-module/
+[6]: https://www.tindie.com/products/joeseggiola/in-cv-terry-rileys-in-c-for-eurorack/
 [7]: https://www.modulargrid.net/e/joeseggiola-in-cv
 
 Features
@@ -54,7 +54,7 @@ The following is just a hint for a possible circuit implementation.
 Pictures
 --------
 
-### New PCB build
+### New [PCB](pcb/) build
 
 [🛒 **Buy on Tindie**][6] | [🛒 **Buy on Reverb**][5]
 

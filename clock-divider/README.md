@@ -1,13 +1,13 @@
 Clock divider
 =============
 
-A DIY Arduino-powered clock divider in 4HP.
+A DIY Arduino-powered clock divider in 4 HP.
 
 **[Arduino code][1]** | **[ModularGrid][2]** | [🛒 **Buy on Tindie**][3] | [🗨️ **Mod Wiggler**][4]
 
 [1]: clock-divider.ino
 [2]: https://www.modulargrid.net/e/joeseggiola-clock-divider
-[3]: https://www.tindie.com/products/joeseggiola/clock-divider-pcb-panel/
+[3]: https://www.tindie.com/products/joeseggiola/clock-divider-for-eurorack-pcb-panel/
 [4]: https://modwiggler.com/forum/viewtopic.php?t=214669
 
 Features
@@ -20,7 +20,7 @@ Features
 - Gate-mode: duration of the output pulses is 50% of divided tempo, enabled by long-pressing the manual reset button.
 
 Circuit
---------
+-------
 
 The following is just a hint for a possible circuit implementation.
 
@@ -29,7 +29,7 @@ The following is just a hint for a possible circuit implementation.
 Pictures
 --------
 
-### New PCB build
+### New [PCB](pcb/) build
 
 [🛒 **Buy on Tindie**][3]
 
