@@ -1,0 +1,27 @@
+Type,Description,Name,Value,Qty,Notes / Link
+IC,Arduino Nano,,,1,https://store.arduino.cc/products/arduino-nano
+IC,MIDI optocoupler,H11L1M,,1,"Or 6N139, but it requires a PCB modification"
+IC,DAC breakout board,GY-MCP4728,,1,https://www.aliexpress.com/item/33007068899.html
+Capacitor,"Bypass, ceramic",BYP,100nF,1,"Optional, close values should work the same"
+Capacitor,"Bypass, electrolytic",BYP,10µF,1,"Optional, close values should work the same"
+Diode,On MIDI input,1N4148,,1,"Or 1N914, or anything similar"
+Resistor,On MIDI input,,220Ω,2,Close values should work the same
+Resistor,For RGB LED,RML*,1kΩ,3,Adjust values depending on desired brightness
+Resistor,For gates LEDs,RL1..4,10kΩ,4,Adjust value depending on desired brightness
+Resistor,For gate-OR LED,RLO,10kΩ,1,Adjust value depending on desired brightness
+Button,Tactile switch,BTN,,1,"14mm, or shorter if glued to the panel or lifted using a piece of stripboard"
+Connector,IDC 10 pin socket,,,1,"Eurorack power socket, or 2x5 male pin header"
+Connector,Jumper,MIDI / PROG,,1,Jumper to select MIDI or PROG for sketch uploading
+Connector,DIN 5-pin socket,MIDI-DIN,,1,https://www.aliexpress.com/item/32954620723.html
+Connector,Pin header 1x3 male,MIDI / PROG,,1,"For the jumper, you can break a longer one"
+Connector,Pin header 1x8 male,,,1,You can break a longer one
+Connector,Pin header 1x8 female,,,1,You can break a longer one
+Connector,Pin header 1x12 male,,,2,You can break a longer one
+Connector,Pin header 1x12 female,,,2,You can break a longer one
+Connector,Pin header 1x13 male,,,1,You can break a longer one
+Connector,Pin header 1x13 female,,,1,You can break a longer one
+Jack,CV and gates,PJ398SM,,9,https://www.thonk.co.uk/shop/thonkiconn/
+Jack,MIDI TRS-A,PJ366ST,,1,https://www.thonk.co.uk/shop/thonkiconn/
+LED,"Gates LEDs, 3mm",LED1..4,,4,"Red, or any colour you like"
+LED,"Gate-OR LED, 3mm",L-OR,,1,"Yellow, or any colour you like"
+LED,"Mode LED, 5mm RGB",,,1,https://www.mouser.it/ProductDetail/604-WP154A4SUREQBFZW
