@@ -1,0 +1,16 @@
+Type,Description,Name,Value,Qty,Notes / Link
+IC,Arduino Nano,,,1,https://store.arduino.cc/products/arduino-nano
+Capacitor,"Bypass, ceramic",BYP,100nF,1,"Optional, close values should work the same"
+Capacitor,"Bypass, electrolytic",BYP,10µF,1,"Optional, close values should work the same"
+Diode,Inputs section,1N4148,,2,"Or 1N914, or anything similar"
+Resistor,Inputs section,,10kΩ,4,Close values should work the same
+Resistor,Inputs section,,220kΩ,2,Any value down to 100kΩ should work the same
+Resistor,Button pull-down,,10kΩ,1,Close values should work the same
+Resistor,For LEDs,RL0..8,1kΩ,9,Adjust value depending on desired brightness
+Transistor,Inputs section,BC337,,2,Any similar NPN should work the same
+Button,"Tactile switch, 7mm",BTN,,1,Glued to the panel and connected with wire to the PCB
+Connector,IDC 10 pin socket,,,1,"Eurorack power socket, or 2x5 male pin header"
+Connector,Pin header 1x2 female,,,10,"For button and LEDs, if you don’t want to solder them to the PCB"
+Jack,Clock and outputs,PJ-316A,,10,https://www.aliexpress.com/item/32837286787.html
+LED,"Clock LED, 3mm",L0,,1,"Green, or any colour you like"
+LED,"Divisions LEDs, 3mm",L1..8,,8,"Red, or any colour you like"
