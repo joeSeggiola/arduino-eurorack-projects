@@ -7,9 +7,9 @@ Capacitor,"Bypass, electrolytic",BYP,10µF,1,"Optional, close values should work
 Diode,On MIDI input,1N4148,,1,"Or 1N914, or anything similar"
 Resistor,On MIDI input,,220Ω,2,Close values should work the same
 Resistor,For RGB LED,RML*,1kΩ,3,Adjust values depending on desired brightness
-Resistor,For gates LEDs,RL1..4,10kΩ,4,Adjust value depending on desired brightness
-Resistor,For gate-OR LED,RLO,10kΩ,1,Adjust value depending on desired brightness
-Button,Tactile switch,BTN,,1,"14mm, or shorter if glued to the panel or lifted using a piece of stripboard"
+Resistor,For gates LEDs,RL1..4,1kΩ,4,Adjust value depending on desired brightness
+Resistor,For gate-OR LED,RLO,1kΩ,1,Adjust value depending on desired brightness
+Button,"Tactile switch, 14mm",BTN,,1,Or shorter if glued to the panel or lifted using a piece of stripboard
 Connector,IDC 10 pin socket,,,1,"Eurorack power socket, or 2x5 male pin header"
 Connector,Jumper,MIDI / PROG,,1,Jumper to select MIDI or PROG for sketch uploading
 Connector,DIN 5-pin socket,MIDI-DIN,,1,https://www.aliexpress.com/item/32954620723.html
