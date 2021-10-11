@@ -19,6 +19,7 @@ Features
 - Down-beat counting.
 - Trigger mode: duration of incoming pulses is preserved on outputs.
 - Gate-mode: duration of the output pulses is 50% of divided tempo, enabled by long-pressing the manual reset button.
+- Euclidean mode: outputs provide 8 channels of Euclidean rhythms (can be activated in code, implemented by [Tim Richardson](https://github.com/timini/arduino-eurorack-projects/tree/master/clock-divider-euclid-mod)).
 
 Circuit
 -------

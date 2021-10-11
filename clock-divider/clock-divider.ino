@@ -16,6 +16,19 @@ const unsigned long MODE_SWITCH_LONG_PRESS_DURATION_MS = 3000; // Reset button l
 const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for all buttons
 const unsigned long LED_MIN_DURATION_MS = 50; // Minimum "on" duration for all LEDs visibility
 
+const bool EUCLIDEAN = false; // TRUE to enable 8 channels of Euclidean rhythms
+const int EUCLIDEAN_N_STEPS = 8;  
+const int EUCLIDEAN_RHYTHMS[][EUCLIDEAN_N_STEPS] {
+	{ 1, 0, 0, 0, 0, 0, 0, 0 },
+	{ 1, 0, 0, 0, 1, 0, 0, 0 },
+	{ 1, 0, 0, 1, 0, 0, 1, 0 },
+	{ 1, 0, 1, 0, 1, 0, 1, 0 },
+	{ 0, 1, 1, 0, 1, 1, 0, 1 },
+	{ 0, 1, 1, 1, 0, 1, 1, 1 },
+	{ 0, 1, 1, 1, 1, 1, 1, 1 },
+	{ 1, 1, 1, 1, 1, 1, 1, 1 },
+};
+
 // ===========================================================================
 
 #include <EEPROM.h>
@@ -131,9 +144,15 @@ void processTriggerMode() {
 	// Copy input signal on current divisions
 	if (clock) {
 		
-		// Rising edge, go HIGH on current divisions
+		// Rising edge, go HIGH on current divisions (or advance Euclidean patterns)
 		for (int i = 0; i < n; i++) {
-			bool v = (count % DIVISIONS[i] == 0);
+			bool v;
+			if (!EUCLIDEAN) {
+				v = (count % DIVISIONS[i] == 0);
+			} else {
+				int step = count % EUCLIDEAN_N_STEPS;
+				v = EUCLIDEAN_RHYTHMS[i][step] == 1;
+			}
 			digitalWrite(DIVISIONS_OUTPUT[i], v ? HIGH : LOW);
 			leds[i].set(v);
 		}
@@ -155,21 +174,34 @@ void processGateMode() {
 	// Keep outputs high for ~50% of divided time
 	for (int i = 0; i < n; i++) {
 		
-		// Go HIGH on the rising edges that corresponds to the division
-		int modulo = (count % DIVISIONS[i]);
-		if (clock && modulo == 0) {
+		// Go HIGH on the rising edges that corresponds to the division (or Euclidean pattern)
+		bool high;
+		int modulo, step;
+		if (!EUCLIDEAN) {
+			modulo = (count % DIVISIONS[i]);
+			high = clock && modulo == 0;
+		} else {
+			step = count % EUCLIDEAN_N_STEPS;
+			high = clock && EUCLIDEAN_RHYTHMS[i][step] == 1;
+		}
+		if (high) {
 			digitalWrite(DIVISIONS_OUTPUT[i], HIGH);
 			leds[i].on();
 		}
 		
 		// Go LOW on rising edges for even divisions and falling edges for odd divisions,
 		// considering the edges that corresponds to the half value of the division
-		if (modulo == (int)(floor(DIVISIONS[i] / 2.0))) {
+		bool low;
+		if (!EUCLIDEAN) {
 			bool divisionIsOdd = (DIVISIONS[i] % 2 != 0);
-			if ((clock && !divisionIsOdd) || (!clock && divisionIsOdd)) {
-				digitalWrite(DIVISIONS_OUTPUT[i], LOW);
-				leds[i].off();
-			}
+			low = (modulo == (int)(floor(DIVISIONS[i] / 2.0)));
+			low = low && ((clock && !divisionIsOdd) || (!clock && divisionIsOdd));
+		} else {
+			low = clock && EUCLIDEAN_RHYTHMS[i][step] == 0;
+		}
+		if (low) {
+			digitalWrite(DIVISIONS_OUTPUT[i], LOW);
+			leds[i].off();
 		}
 		
 	}
