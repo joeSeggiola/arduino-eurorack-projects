@@ -44,10 +44,8 @@ The first CV output should be around 0.5V: use the first performer button to dec
 
 At the end of the whole procedure, the module will reboot itself and all CV outputs will track 1V/oct accurately. Calibration data is stored in Arduino EEPROM memory, so it's persisted across reboots and won't be lost by uploading new patterns.
 
-Circuit
--------
-
-The following is just a hint for a possible circuit implementation.
+Schematic
+---------
 
 ![](schematic.png)
 

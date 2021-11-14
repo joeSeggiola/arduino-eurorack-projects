@@ -21,10 +21,8 @@ Features
 - Gate-mode: duration of the output pulses is 50% of divided tempo, enabled by long-pressing the manual reset button.
 - Euclidean mode: outputs provide 8 channels of Euclidean rhythms (can be activated in code, implemented by [Tim Richardson](https://github.com/timini/arduino-eurorack-projects/tree/master/clock-divider-euclid-mod)).
 
-Circuit
--------
-
-The following is just a hint for a possible circuit implementation.
+Schematic
+---------
 
 ![](schematic.png)
 

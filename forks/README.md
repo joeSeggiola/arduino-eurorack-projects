@@ -24,8 +24,8 @@ Compared to [Branches][5], it has some drawbacks due to Arduino usage with minim
 - Probability CV input is simply summed to the value of the knob: with the knob fully counter-clockwise the probability is given by the CV input only, turning the knob clockwise will "push" the probability toward 100%, up to fully clockwise where the CV input doesn't matter any more.
 - The second channel input is not normalized to the first one.
 
-Circuit
--------
+Schematic
+---------
 
 The following is a hint for a possible circuit implementation. Only one Bernoulli gate is laid out, the second is an exact copy.
 
