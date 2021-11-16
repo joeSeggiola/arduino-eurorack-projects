@@ -6,7 +6,7 @@ A DIY Arduino-powered clock divider in 4 HP.
 **[Arduino code][1]** | **[BOM][5]** | **[ModularGrid][2]** | [🛒 **Buy PCB and panel on Tindie**][3] | [🗨️ **Mod Wiggler**][4]
 
 [1]: clock-divider.ino
-[5]: bom.csv
+[5]: clock-divider-bom.csv
 [2]: https://www.modulargrid.net/e/joeseggiola-clock-divider
 [3]: https://www.tindie.com/products/joeseggiola/clock-divider-for-eurorack-pcb-panel/
 [4]: https://modwiggler.com/forum/viewtopic.php?t=214669

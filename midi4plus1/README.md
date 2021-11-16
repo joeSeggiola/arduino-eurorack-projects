@@ -6,7 +6,7 @@ A DIY Arduino-powered MIDI to 4x CV/gate interface in 6 HP, with both polyphonic
 **[Arduino code][1]** | **[BOM][2]** | **[ModularGrid][6]** | [🛒 **Buy PCB and panel on Tindie**][7] | **[YouTube demo][5]** | [🗨️ **Mod Wiggler**][3] | [🗨️ **Lines**][4]
 
 [1]: midi4plus1.ino
-[2]: bom.csv
+[2]: midi4plus1-bom.csv
 [3]: https://www.modwiggler.com/forum/viewtopic.php?t=231861
 [4]: https://llllllll.co/t/midi-4-1-arduino-powered-polyphonic-and-monophonic-midi-to-4x-cv-gate-interface-in-6hp/32543
 [5]: https://youtu.be/g9WwDo7eYi4
