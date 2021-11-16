@@ -3,7 +3,7 @@ Clock divider
 
 A DIY Arduino-powered clock divider in 4 HP.
 
-**[Arduino code][1]** | **[BOM][5]** | **[ModularGrid][2]** | [🛒 **Buy on Tindie**][3] | [🗨️ **Mod Wiggler**][4]
+**[Arduino code][1]** | **[BOM][5]** | **[ModularGrid][2]** | [🛒 **Buy PCB and panel on Tindie**][3] | [🗨️ **Mod Wiggler**][4]
 
 [1]: clock-divider.ino
 [5]: bom.csv
@@ -31,7 +31,7 @@ Pictures
 
 ### New [PCB](pcb/) build
 
-[🛒 **Buy on Tindie**][3]
+[🛒 **Buy PCB and panel on Tindie**][3]
 
 <img src="pictures/IMG_20210702_130542.jpg" width="420"> <img src="pictures/IMG_20210702_130610.jpg" width="420"> 
 

@@ -3,7 +3,7 @@ MIDI 4+1
 
 A DIY Arduino-powered MIDI to 4x CV/gate interface in 6 HP, with both polyphonic and monophonic voice allocation modes.
 
-**[Arduino code][1]** | **[BOM][2]** | **[ModularGrid][6]** | [🛒 **Buy on Tindie**][7] | **[YouTube demo][5]** | [🗨️ **Mod Wiggler**][3] | [🗨️ **Lines**][4]
+**[Arduino code][1]** | **[BOM][2]** | **[ModularGrid][6]** | [🛒 **Buy PCB and panel on Tindie**][7] | **[YouTube demo][5]** | [🗨️ **Mod Wiggler**][3] | [🗨️ **Lines**][4]
 
 [1]: midi4plus1.ino
 [2]: bom.csv
@@ -50,7 +50,7 @@ Pictures
 
 ### New [PCB](pcb/) build
 
-[🛒 **Buy on Tindie**][7]
+[🛒 **Buy PCB and panel on Tindie**][7]
 
 <img src="pictures/IMG_20210621_140800.jpg" height="320"> <img src="pictures/IMG_20210621_140903.jpg" height="320"> <img src="pictures/IMG_20210620_175313.jpg" height="320">
 
