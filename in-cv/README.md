@@ -47,7 +47,11 @@ At the end of the whole procedure, the module will reboot itself and all CV outp
 Schematic
 ---------
 
+Both DACs are on the same I2C bus, so you need to [set their device IDs][30] to `0` and `1` to address them individually. This is not possible once the circuit is soldered on the PCB.
+
 ![](schematic.png)
+
+[30]: ../tools/mcp4728_addr/mcp4728_addr.ino
 
 Pictures
 --------
