@@ -6,6 +6,7 @@
 
 const byte MODE_BUTTON = A0; // Main button pin
 const byte MODE_LEDS[] = { A1, A2, A3 }; // RGB LED pins for current mode display
+const bool MODE_LEDS_PWM = true; // Set to FALSE to disable SoftPWM and adjust RGB brightness with resistors only 
 
 const byte GATES[] { 3, 4, 5, 6 }; // Gate 1-4 pins
 const byte GATE_OR = 7; // Auxiliary gate pin, high when at least one gate is high
@@ -59,11 +60,13 @@ const bool DEBUG_WITH_TTYMIDI = false; // TRUE to use ttymidi bridge and print m
 #define MODE_POLY_FIRST 1 // 4x polyphony with priority to first
 #define MODE_POLY_MONO 2 // Keyboard split with 3x polyphony on lower keys, monophony on higher keys
 #define MODE_MONO_POLY 3 // Keyboard split with monophony on lower key, 3x polyphony on higher keys
+#define MODE_MONO 4 // 4x monophony on MIDI channels 1-4
 
 #define MODE_POLY_RGB 0x330000 // Red
 #define MODE_POLY_FIRST_RGB 0x003300 // Green
 #define MODE_POLY_MONO_RGB 0x0000CC // Blue
 #define MODE_MONO_POLY_RGB 0x3300CC // Pink
+#define MODE_MONO_RGB 0x009966 // Teal
 
 #define CALIBRATION_RGB 0x3333CC // White
 
@@ -74,7 +77,7 @@ Led gateLed[N];
 Led gateOrLed;
 Led noteOnLed;
 
-NoteStack mono;
+NoteStack mono[N];
 VoiceAllocator poly;
 
 byte mode = MODE_POLY;
@@ -122,13 +125,21 @@ void setup() {
 	
 	// Setup I/O
 	modeButton.init(MODE_BUTTON, BUTTON_DEBOUNCE_DELAY, true, true);
-	SoftPWMBegin(); // Software PWM for the mode RGB LED
 	pinMode(GATE_OR, OUTPUT);
 	gateOrLed.init(GATE_OR_LED, LED_MIN_DURATION_MS);
 	noteOnLed.init(NOTE_ON_LED, LED_MIN_DURATION_MS);
 	for (byte i = 0; i < N; i++) {
 		pinMode(GATES[i], OUTPUT);
 		gateLed[i].init(GATES_LEDS[i]);
+	}
+	
+	// Setup mode RGB LED
+	if (MODE_LEDS_PWM) {
+		SoftPWMBegin(); // Software PWM for the mode RGB LED
+	} else {
+		pinMode(MODE_LEDS[0], OUTPUT);
+		pinMode(MODE_LEDS[1], OUTPUT);
+		pinMode(MODE_LEDS[2], OUTPUT);
 	}
 	
 	// Init I2C communication and DAC
@@ -159,9 +170,9 @@ void setup() {
 void setupMain() {
 	
 	// Init voice allocators
-	mono.init();
 	poly.init();
 	for (byte i = 0; i < N; i++) {
+		mono[i].init();
 		voiceMidiNote[i] = 12; // Init voices to C0
 	}
 	
@@ -173,7 +184,7 @@ void setupMain() {
 	}
 	
 	// Init mode from permanent storage
-	byte initialMode = EEPROM.read(MODE_EEPROM_ADDRESS) % 4;
+	byte initialMode = EEPROM.read(MODE_EEPROM_ADDRESS) % 5;
 	setMode(initialMode);
 	
 	// MIDI callbacks
@@ -235,7 +246,7 @@ void loopMain() {
 	// Check for mode button presses
 	byte modeButtonPress = modeButton.readShortOrLongPressOnce(BUTTON_LOCK_LONG_PRESS_MS);
 	if (modeButtonPress == 1) {
-		setMode((mode + 1) % 4); // Short-press: cycle through modes
+		setMode((mode + 1) % 5); // Short-press: cycle through modes
 	} else if (modeButtonPress == 2) {
 		voicesLock(); // Long-press: lock voices
 	}
@@ -302,7 +313,7 @@ void loopCalibration() {
 
 void setMode(byte m) {
 	
-	// Setup allocators
+	// Setup polyphonic allocator
 	mode = m;
 	switch (mode) {
 		case MODE_POLY:
@@ -341,21 +352,31 @@ void voicesLock() {
 		}
 	}
 	
-	// Lock currently held polyphonic voices
-	if (!unlocked) {
-		for (byte i = 0; i < N; i++) {
-			if (voiceActive[i] && !isNoteForMonophony(voiceMidiNote[i])) {
-				voiceLocked[i] = true;
+	if (mode != MODE_MONO) {
+		
+		// Lock currently held polyphonic voices
+		if (!unlocked) {
+			for (byte i = 0; i < N; i++) {
+				if (voiceActive[i] && !isNoteForMonophony(voiceMidiNote[i])) {
+					voiceLocked[i] = true;
+				}
 			}
+			if (DEBUG) debugVoices();
 		}
-		if (DEBUG) debugVoices();
+		
+		// Turn off the mode LED to signal (un)locking
+		voiceLockLedTime = millis();
+		if (MODE_LEDS_PWM) {
+			SoftPWMSet(MODE_LEDS[0], 0);
+			SoftPWMSet(MODE_LEDS[1], 0);
+			SoftPWMSet(MODE_LEDS[2], 0);
+		} else {
+			digitalWrite(MODE_LEDS[0], LOW);
+			digitalWrite(MODE_LEDS[1], LOW);
+			digitalWrite(MODE_LEDS[2], LOW);
+		}
+		
 	}
-	
-	// Turn off the mode LED to signal (un)locking
-	voiceLockLedTime = millis();
-	SoftPWMSet(MODE_LEDS[0], 0);
-	SoftPWMSet(MODE_LEDS[1], 0);
-	SoftPWMSet(MODE_LEDS[2], 0);
 	
 }
 
@@ -373,7 +394,9 @@ void reset() {
 	gateOrLed.off();
 	
 	// Reset allocators
-	mono.clear();
+	for (byte i = 0; i < N; i++) {
+		mono[i].clear();
+	}
 	poly.clear();
 	
 	pitchBend = 0;
@@ -430,20 +453,28 @@ void setModeLed() {
 		case MODE_POLY_FIRST: setModeLedColor(MODE_POLY_FIRST_RGB); break;
 		case MODE_POLY_MONO: setModeLedColor(MODE_POLY_MONO_RGB); break;
 		case MODE_MONO_POLY: setModeLedColor(MODE_MONO_POLY_RGB); break;
+		case MODE_MONO: setModeLedColor(MODE_MONO_RGB); break;
 	}
 }
 
 void setModeLedColor(unsigned long color) {
-	SoftPWMSet(MODE_LEDS[0], (color >> 16) & 0xFF);
-	SoftPWMSet(MODE_LEDS[1], (color >> 8) & 0xFF);
-	SoftPWMSet(MODE_LEDS[2], color & 0xFF);
+	if (MODE_LEDS_PWM) {
+		SoftPWMSet(MODE_LEDS[0], (color >> 16) & 0xFF);
+		SoftPWMSet(MODE_LEDS[1], (color >> 8) & 0xFF);
+		SoftPWMSet(MODE_LEDS[2], color & 0xFF);
+	} else {
+		digitalWrite(MODE_LEDS[0], (color >> 16) & 0xFF ? HIGH : LOW);
+		digitalWrite(MODE_LEDS[1], (color >> 8) & 0xFF ? HIGH : LOW);
+		digitalWrite(MODE_LEDS[2], color & 0xFF ? HIGH : LOW);
+	}
 }
 
 void handleNoteOn(byte channel, byte note, byte velocity) {
 	noteOnLed.flash();
 	if (isNoteForMonophony(note)) {
-		mono.noteOn(note);
-		byte i = getMonophonyVoiceIndex();
+		if (mode == MODE_MONO && (channel == 0 || channel > N)) return;
+		mono[getMonophonyStackIndex(channel)].noteOn(note);
+		byte i = getMonophonyVoiceIndex(channel);
 		voiceMidiNote[i] = note;
 		voiceActive[i] = true;
 		outputFlag = true;
@@ -464,8 +495,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
 void handleNoteOff(byte channel, byte note, byte velocity) {
 	if (isNoteForMonophony(note)) {
-		int newNote = mono.noteOff(note);
-		byte i = getMonophonyVoiceIndex();
+		if (mode == MODE_MONO && (channel == 0 || channel > N)) return;
+		int newNote = mono[getMonophonyStackIndex(channel)].noteOff(note);
+		byte i = getMonophonyVoiceIndex(channel);
 		if (newNote > -1) {
 			voiceMidiNote[i] = newNote;
 			voiceActive[i] = true;
@@ -503,12 +535,18 @@ void handleCalibrationOffset(byte channel, byte note, byte velocity) {
 bool isNoteForMonophony(byte note) {
 	bool higherKey = note >= (SPLIT_MIDI_OCTAVE + 1) * 12; // Check keyboard split
 	return ( // Return TRUE if the pressed note should be used for monophony
+		(mode == MODE_MONO) ||
 		(mode == MODE_POLY_MONO && higherKey) ||
 		(mode == MODE_MONO_POLY && !higherKey)
 	);
 }
 
-byte getMonophonyVoiceIndex() {
+byte getMonophonyStackIndex(byte channel) {
+	return mode == MODE_MONO ? ((channel - 1) % N) : 0;
+}
+
+byte getMonophonyVoiceIndex(byte channel) {
+	if (mode == MODE_MONO) return (channel - 1) % N;
 	return mode == MODE_MONO_POLY ? 0 : N - 1;
 }
 

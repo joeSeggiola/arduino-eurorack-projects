@@ -18,11 +18,12 @@ Features and limitations
 
 * Single MIDI input via DIN or [TRS Type A](https://www.midi.org/midi-articles/trs-specification-adopted-and-released) (now the MIDI standard).
 * Four 1V/oct CV/gate outputs with gate LEDs.
-* Button for cycling through four different modes, with coloured mode LED:
+* Button for cycling through five different modes, with coloured mode LED:
    * **Poly** (red): four-voices polyphony with priority to last, LRU strategy and voice stealing;
    * **Poly-first** (green): four-voices polyphony with priority to first and first-available strategy;
    * **Split poly+mono** (blue): split keyboard with three-voices polyphony on the left, and monophony on the right (priority to last);
-   * **Split mono+poly** (pink): same as above, but flipped.
+   * **Split mono+poly** (pink): same as above, but flipped;
+   * **Mono** (teal): four independent monophonic allocators, one for each MIDI channel 1 to 4.
 * Additional gate output that stays high while at least one polyphonic voice is active (logic OR), useful for single-filter setups.
 * Voices lock with a long-press of the mode button: all gates of currently held polyphonic voices stay high, ignoring key releases until next reallocation.
 
