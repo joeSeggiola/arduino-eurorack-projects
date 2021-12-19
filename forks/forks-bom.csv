@@ -1,0 +1,27 @@
+Type,Description / Location,Name,Value,Qty,Notes / Link
+IC,Arduino Nano,,,1,https://store.arduino.cc/products/arduino-nano
+IC,CV opamp,TL062,,1,"Or TL082, or TL072"
+IC,5V reference,LM4040,5V,1,LM4040-5.0 in TO-92 package
+Capacitor,"CV inputs, ceramic",1n,1nF,2,
+Capacitor,"Bypass and pots, ceramic","BYP, 100n",100nF,4,Close values should work the same
+Capacitor,"Bypass, electrolytic",BYP,10µF,1,"Optional, close values should work the same"
+Diode,Gate inputs,1N4148,,2,"Or 1N914, or anything similar"
+Resistor,Gate inputs,,10kΩ,4,Close values should work the same
+Resistor,Gate inputs,,220kΩ,2,Any value down to 100kΩ should work the same
+Resistor,CV inputs,,33kΩ,2,
+Resistor,CV inputs,,100kΩ,4,
+Resistor,5V reference,,4.7kΩ,1
+Resistor,Outputs,,1kΩ,4,
+Resistor,LEDs resistors,,1kΩ,2,Adjust value depending on desired brightness
+Potentiometer,"Probability, linear",,10kΩ,2,"Alpha 9mm RD901F-40, Tayda: A-4728, remove anti-rotation tag"
+Transistor,Gate inputs,BC337,,2,Any similar NPN should work the same
+Button,Tactile switch,"BTN1,2",,2,Mouser: 612-TL1105SP-250 or 612-TL1105SP
+Button,Tactile switch cap,,,2,"Mouser: 612-1RWHT, 612-1R-LGR or any colour you like"
+Switch,Slide switch,"TG, LT",,4,"Tayda: A-5111, or Mouser: 118-5FS1S102M2QES"
+Connector,IDC 10 pin socket,,,1,"Eurorack power socket, or 2x5 male pin header"
+Connector,Jumper,NORM,,1,Jumper to enable normalization of channel #2 input to #1
+Connector,Pin header 1x3 male,NORM,,1,"For the jumper, you can break a longer one"
+Connector,Pin header 1x7 male,,,4,You can break a longer one
+Connector,Pin header 1x7 female,,,4,You can break a longer one
+Jack,"Inputs, CVs, outputs",PJ398SM,,8,https://www.thonk.co.uk/shop/thonkiconn/
+LED,"Bi-color, 3mm","LED1,2",,2,"Common cathode, red and green, Mouser: 604-WP3VEGW"
