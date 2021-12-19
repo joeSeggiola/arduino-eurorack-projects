@@ -3,7 +3,7 @@ In CV
 
 A DIY Arduino-powered virtual ensemble that plays Terry Riley's "In C" on CV/gate outputs.
 
-**[Arduino code][1]** | **[ModularGrid][7]** | [🛒 **Buy on Tindie**][6] | [🛒 **Buy on Reverb**][5] | **[YouTube demo][3]** | [🗨️ **Mod Wiggler**][4]
+**[Arduino code][1]** | [🛒 **Buy on Tindie**][6] | [🛒 **Buy on Reverb**][5] | **[ModularGrid][7]** | **[YouTube demo][3]** | [🗨️ **Mod Wiggler**][4]
 
 [1]: in-cv.ino
 [3]: https://youtu.be/ea2zLXFY1C4
