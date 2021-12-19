@@ -10,14 +10,14 @@ Resistor,Gate inputs,,10kΩ,4,Close values should work the same
 Resistor,Gate inputs,,220kΩ,2,Any value down to 100kΩ should work the same
 Resistor,CV inputs,,33kΩ,2,
 Resistor,CV inputs,,100kΩ,4,
-Resistor,5V reference,,5.1kΩ,1,Any value ±2kΩ should work the same
+Resistor,5V reference,,4.7kΩ,1
 Resistor,Outputs,,1kΩ,4,
 Resistor,LEDs resistors,,1kΩ,2,Adjust value depending on desired brightness
 Potentiometer,"Probability, linear",,10kΩ,2,"Alpha 9mm RD901F-40, Tayda: A-4728, remove anti-rotation tag"
 Transistor,Gate inputs,BC337,,2,Any similar NPN should work the same
 Button,Tactile switch,"BTN1,2",,2,Mouser: 612-TL1105SP-250 or 612-TL1105SP
 Button,Tactile switch cap,,,2,"Mouser: 612-1RWHT, 612-1R-LGR or any colour you like"
-Switch,Slide switch,"TG, LT",,4,"Tayda: A-5111, A-5109, or Mouser: 118-5FS1S102M2QES"
+Switch,Slide switch,"TG, LT",,4,"Tayda: A-5111, or Mouser: 118-5FS1S102M2QES"
 Connector,IDC 10 pin socket,,,1,"Eurorack power socket, or 2x5 male pin header"
 Connector,Jumper,NORM,,1,Jumper to enable normalization of channel #2 input to #1
 Connector,Pin header 1x3 male,NORM,,1,"For the jumper, you can break a longer one"

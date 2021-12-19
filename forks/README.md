@@ -6,7 +6,7 @@ A DIY Arduino-powered clone of Mutable Instruments [Branches][5], with a couple 
 **[Arduino code][1]** | **[BOM][2]** | [🗨️ **Mod Wiggler**][4]
 
 [1]: forks.ino
-[2]: bom.csv
+[2]: forks-bom.csv
 [4]: https://www.modwiggler.com/forum/viewtopic.php?t=216665
 [5]: https://mutable-instruments.net/modules/branches/
 
