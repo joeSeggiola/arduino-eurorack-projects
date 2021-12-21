@@ -10,7 +10,7 @@ Resistor,Gate inputs,,10kΩ,4,Close values should work the same
 Resistor,Gate inputs,,220kΩ,2,Any value down to 100kΩ should work the same
 Resistor,CV inputs,,33kΩ,2,
 Resistor,CV inputs,,100kΩ,4,
-Resistor,5V reference,,4.7kΩ,1
+Resistor,5V reference,,4.7kΩ,1,Or 5.1kΩ as labeled
 Resistor,Outputs,,1kΩ,4,
 Resistor,LEDs resistors,,1kΩ,2,Adjust value depending on desired brightness
 Potentiometer,"Probability, linear",,10kΩ,2,"Alpha 9mm RD901F-40, Tayda: A-4728, remove anti-rotation tag"
