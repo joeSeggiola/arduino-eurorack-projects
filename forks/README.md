@@ -38,7 +38,7 @@ Pictures
 
 [🛒 **Buy PCB and panel on Tindie**][3]
 
-<img src="pictures/IMG_20211223_135315.jpg" height="420"> <img src="pictures/IMG_20211223_133624.jpg" height="420">
+<img src="pictures/IMG_20211223_135315.jpg" width="420"> <img src="pictures/IMG_20211223_133624.jpg" width="420">
 
 ### Old [3D-printed](3d/) build
 
