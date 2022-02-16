@@ -24,7 +24,9 @@ Features and limitations
    * **Split poly+mono** (blue): split keyboard with three-voices polyphony on the left, and monophony on the right (priority to last);
    * **Split mono+poly** (pink): same as above, but flipped;
    * **Mono** (teal): four independent monophonic allocators, one for each MIDI channel 1 to 4.
-* Additional gate output that stays high while at least one polyphonic voice is active (logic OR), useful for single-filter setups.
+* Additional output which can work as one of the following:
+   * Gate output that stays high while at least one polyphonic voice is active (logic OR), useful for single-filter setups;
+   * Trigger output for MIDI clock, with customizable PPQ (can be enabled [in code](midi4plus1.ino#L23)).
 * Voices lock with a long-press of the mode button: all gates of currently held polyphonic voices stay high, ignoring key releases until next reallocation.
 
 The DACs range is 0-4V, so only the 4 center octaves are covered. The get more, it is necessary to add amplifiers 

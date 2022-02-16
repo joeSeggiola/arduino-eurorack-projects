@@ -20,6 +20,10 @@ const byte PITCH_BEND_SEMITONES = 2; // Picth-bend range in semitones
 const byte SPLIT_MIDI_OCTAVE = 4; // Defines on which MIDI octave the keyboard will be split for poly+mono mode
 const int LOWEST_MIDI_OCTAVE = 2; // CV out range is four octaves max, this defines which MIDI octave will be mapped to zero CV
 
+const bool CLOCK = false; // TRUE to send MIDI clock to auxiliary gate pin (instead of OR)
+const unsigned int CLOCK_PPQ = 24; // 24 PPQ to get a trigger every 1/4 note (MIDI standard), 12 PPQ for 1/8, 48 PPQ for 1/2, etc...
+const unsigned int CLOCK_TRIG_MS = 40; // Trigger width for the clock output signal, in ms
+
 const unsigned long BUTTON_LOCK_LONG_PRESS_MS = 500; // Button long-press duration to lock currently help polyphonic voices
 const unsigned long BUTTON_DEBOUNCE_DELAY = 50; // Debounce delay for the button
 const unsigned long LED_MODE_LOCK_DURATION_MS = 500; // How long the mode LED should be kept off to signal voices lock
@@ -88,6 +92,12 @@ bool voiceLocked[N]; // TRUE if the voice is currently locked
 unsigned long voiceLockLedTime = 0; // Time the mode LED has been turned off to signal lock
 int pitchBend; // Pitch-bend value (all voices in poly modes, monophonic voice only in split modes)
 bool outputFlag; // TRUE if it's necessary to update the outputs
+
+unsigned int clockCount = 0; // MIDI clock PPQ counter
+bool clockRunning = false; // TRUE if MIDI start/continue message has been received
+bool clockTrig = false; // TRUE if the trigger for the clock output is currently HIGH
+unsigned long clockTrigTime = 0; // Time of the last trigger for the clock output, in ms
+unsigned long clockTrigDuration = CLOCK_TRIG_MS; // Trigger width for the clock output signal, in ms
 
 bool calibrating = false; // TRUE if currently running the calibration process
 byte calibratingVoice; // Voice currently being calibrated
@@ -178,6 +188,13 @@ void setupMain() {
 	
 	bootAnimation();
 	
+	// Calculate appropriate trigger width for the clock output signal
+	if (CLOCK) {
+		unsigned long clockMaxBPM = 600;
+		unsigned long clockMaxPeriod = ((60000L / clockMaxBPM) * CLOCK_PPQ) / 24; // Period at max BPM
+		clockTrigDuration = min(CLOCK_TRIG_MS, (clockMaxPeriod * 0.8)); // Leave space to re-trig
+	}
+	
 	// Set minimum "on" duration on gate LEDs
 	for (byte i = 0; i < N; i++) {
 		gateLed[i].setMinDurationMs(LED_MIN_DURATION_MS);
@@ -191,6 +208,13 @@ void setupMain() {
 	MIDI.setHandleNoteOn(handleNoteOn);
 	MIDI.setHandleNoteOff(handleNoteOff);
 	MIDI.setHandlePitchBend(handlePitchBend);
+	if (CLOCK) {
+		MIDI.setHandleClock(handleClock);
+		MIDI.setHandleStart(handleStart);
+		MIDI.setHandleContinue(handleContinue);
+		MIDI.setHandleStop(handleStop);
+		MIDI.setHandleSongPosition(handleSongPosition);
+	}
 	
 }
 
@@ -241,6 +265,14 @@ void loopMain() {
 	if (outputFlag) {
 		output();
 		outputFlag = false;
+	}
+	
+	// Update clock output
+	if (CLOCK) {
+		if (clockTrig && (clockTrigTime + clockTrigDuration < millis())) {
+			digitalWrite(GATE_OR, LOW);
+			clockTrig = false;
+		}
 	}
 	
 	// Check for mode button presses
@@ -434,14 +466,16 @@ void output() {
 	}
 	
 	// Update OR gate
-	bool gateOrActive = false;
-	byte gateOrFirstVoice = mode == MODE_MONO_POLY ? 1 : 0;
-	byte gateOrLastVoice = mode == MODE_POLY_MONO ? N - 2 : N - 1;
-	for (byte i = gateOrFirstVoice; i <= gateOrLastVoice; i++) {
-		gateOrActive |= voiceActive[i];
+	if (!CLOCK) {
+		bool gateOrActive = false;
+		byte gateOrFirstVoice = mode == MODE_MONO_POLY ? 1 : 0;
+		byte gateOrLastVoice = mode == MODE_POLY_MONO ? N - 2 : N - 1;
+		for (byte i = gateOrFirstVoice; i <= gateOrLastVoice; i++) {
+			gateOrActive |= voiceActive[i];
+		}
+		digitalWrite(GATE_OR, gateOrActive);
+		gateOrLed.set(gateOrActive);
 	}
-	digitalWrite(GATE_OR, gateOrActive);
-	gateOrLed.set(gateOrActive);
 	
 	if (DEBUG) debugVoices();
 	
@@ -522,6 +556,35 @@ void handlePitchBend(byte channel, int bend) {
 	outputFlag = true;
 }
 
+void handleClock() {
+	if (clockRunning) {
+		if (clockCount == 0) {
+			digitalWrite(GATE_OR, HIGH);
+			clockTrig = true;
+			clockTrigTime = millis();
+			gateOrLed.flash();
+		}
+		clockCount = (clockCount + 1) % CLOCK_PPQ;
+	}
+}
+
+void handleStart() {
+	clockCount = 0;
+	clockRunning = true;
+}
+
+void handleContinue() {
+	clockRunning = true;
+}
+
+void handleStop() {
+	clockRunning = false;
+}
+
+void handleSongPosition(unsigned int beats) {
+	clockCount = (beats * 6) % CLOCK_PPQ; // MIDI beat = a 16th note = 6 pulses (24 PPQ / 4)
+}
+
 void handleCalibrationOffset(byte channel, byte note, byte velocity) {
 	if (calibrating) {
 		noteOnLed.flash();
@@ -570,9 +633,9 @@ String getMidiNoteName(byte note) {
 void debug(String line) {
 	if (DEBUG) {
 		if (DEBUG_WITH_TTYMIDI) {
-			Serial.write(0xFF);
-			Serial.write(0x00);
-			Serial.write(0x00);
+			Serial.write((byte)0xFF);
+			Serial.write((byte)0x00);
+			Serial.write((byte)0x00);
 			Serial.write((byte)line.length());
 			Serial.print(line);
 			Serial.flush();
