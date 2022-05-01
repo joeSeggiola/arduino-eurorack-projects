@@ -29,7 +29,7 @@ Features and limitations
    * Trigger output for MIDI clock, with customizable PPQ (can be enabled [in code](midi4plus1.ino#L23)).
 * Voices lock with a long-press of the mode button: all gates of currently held polyphonic voices stay high, ignoring key releases until next reallocation.
 
-The DACs range is 0-4V, so only the 4 center octaves are covered. The get more, it is necessary to add amplifiers 
+The DACs range is 0-4V, so only the 4 center octaves are covered. To get more, it is necessary to add amplifiers 
 on CV outputs. Split modes splits the keyboard on middle C. Both lowest MIDI octave and split octave are easily
 configurable in code.
 
