@@ -16,6 +16,7 @@ const byte GATE_OR_LED = 12; // Auxiliary gate pin, high when at least one gate 
 const byte NOTE_ON_LED = 13; // LED pin for showing note-on signals
 
 const unsigned int GATE_RETRIG_MS = 40; // Time between two consecutive gates in ms, to retrig envelopes
+const bool GATE_RETRIG_MONO = false; // TRUE to force retrig also on monophonic modes, making legato impossible
 const byte PITCH_BEND_SEMITONES = 2; // Picth-bend range in semitones
 const byte SPLIT_MIDI_OCTAVE = 4; // Defines on which MIDI octave the keyboard will be split for poly+mono mode
 const int LOWEST_MIDI_OCTAVE = 2; // CV out range is four octaves max, this defines which MIDI octave will be mapped to zero CV
@@ -509,6 +510,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 		if (mode == MODE_MONO && (channel == 0 || channel > N)) return;
 		mono[getMonophonyStackIndex(channel)].noteOn(note);
 		byte i = getMonophonyVoiceIndex(channel);
+		if (GATE_RETRIG_MONO && voiceActive[i]) {
+			voiceRetrigTime[i] = millis(); // If already playing a note, start a retrig interval to avoid legato
+		}
 		voiceMidiNote[i] = note;
 		voiceActive[i] = true;
 		outputFlag = true;
@@ -533,6 +537,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 		int newNote = mono[getMonophonyStackIndex(channel)].noteOff(note);
 		byte i = getMonophonyVoiceIndex(channel);
 		if (newNote > -1) {
+			if (GATE_RETRIG_MONO && voiceActive[i]) {
+				voiceRetrigTime[i] = millis(); // If will now play the previous note, start a retrig interval to avoid legato
+			}
 			voiceMidiNote[i] = newNote;
 			voiceActive[i] = true;
 		} else {
