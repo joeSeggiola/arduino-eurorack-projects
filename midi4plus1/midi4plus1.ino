@@ -537,8 +537,8 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 		int newNote = mono[getMonophonyStackIndex(channel)].noteOff(note);
 		byte i = getMonophonyVoiceIndex(channel);
 		if (newNote > -1) {
-			if (GATE_RETRIG_MONO && voiceActive[i]) {
-				voiceRetrigTime[i] = millis(); // If will now play the previous note, start a retrig interval to avoid legato
+			if (GATE_RETRIG_MONO && voiceActive[i] && voiceMidiNote[i] != newNote) {
+				voiceRetrigTime[i] = millis(); // If will now play a different note, start a retrig interval to avoid legato
 			}
 			voiceMidiNote[i] = newNote;
 			voiceActive[i] = true;
