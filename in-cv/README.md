@@ -47,7 +47,7 @@ At the end of the whole procedure, the module will reboot itself and all CV outp
 Schematic
 ---------
 
-Both DACs are on the same I2C bus, so you need to [set their device IDs][30] to `0` and `1` to address them individually. This is not possible once the circuit is soldered on the PCB.
+Both DACs are on the same I2C bus, so you have to [set their device IDs][30] to `0` and `1` to address them individually. If you forgot to do that before soldering the circuit on the PCB, you need to cut through the LDAC pad jumpers to break the connections to GND, set device IDs using a flying wire, then restore the jumpers with solder blobs.
 
 ![](schematic.png)
 
